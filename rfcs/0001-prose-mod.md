@@ -65,6 +65,7 @@ review-when: Claude Code の Mods API（prompt.section / tool.describe / prompt.
 
 ## Unresolved questions
 
+- 出力スタイル（`keep-coding-instructions: false`）だけで十分ではないか。出力スタイルを入れた状態で prose-probe を回し、残る節・ツール説明・リマインダーのうち執筆の邪魔になるものがどれだけあるかを見てから、Mod を作るかを決める
 - 執筆向けの Mod が既に公開されていないか（一覧と marketplace の再確認）
 - `prompt.compose` の hook が記録を 1 件も残さなかった理由。節の外にある本体のシステムプロンプトがどこまで `prompt.section` で見えているか
 - 何を外し、何を残すか（安全・権限・メモリ・環境情報の扱い）
