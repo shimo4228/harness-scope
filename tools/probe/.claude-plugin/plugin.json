@@ -1,0 +1,6 @@
+{
+  "name": "prose-probe",
+  "version": "0.1.0",
+  "description": "Records what Claude Code composes for the model, without changing it (measurement tool for RFC-0001)",
+  "author": { "name": "shimo4228" }
+}
