@@ -2,7 +2,7 @@
 
 | key (owner/repo or domain) | first seen (UTC date) | status | note |
 |---|---|---|---|
-| karanb192/awesome-claude-code-mods | 2026-10-03 | known | seeded |
+| karanb192/awesome-claude-code-mods | 2026-10-03 | listed | harness-scope found in README 2026-10-03 |
 | lycfyi/awesome-claude-code-mods | 2026-10-03 | known | seeded |
 | hesreallyhim/awesome-claude-code | 2026-10-03 | known | seeded |
 | magiccreator-ai/awesome-claude-code-mods (ccmods.dev) | 2026-10-03 | known | seeded |
@@ -24,3 +24,8 @@
 | osaki42/awesome-claude-mods | 2026-10-03 | reported | 0 stars, issue form or PR, one-line entries |
 | whyashthakker/awesome-claude-code-mods | 2026-10-03 | skipped | own 50-mod catalogue, original implementations only, screenshot required |
 | arasovic/claude-code-mods | 2026-10-03 | skipped | personal mod collection, no submission route |
+| loqimean/awesome-claude-code-hooks | 2026-10-03 | reported | 4 stars, PR route, hooks-only focus, one-line entries, alphabetical, commit within 6 months |
+| hashgraph-online/awesome-ai-plugins | 2026-10-03 | reported | 408 stars, multi-platform, PR route, scanner score >=80 required, Claude Code section is thin |
+| hamzafer/claude-code-mods | 2026-10-03 | skipped | own mods repo with marketplace.json; third-party mods go into mods/ dir as code, not a link list |
+| xbim08/awesome-claude-code-plugins | 2026-10-03 | skipped | 10 stars, plugin collection of its own, no contribution guide |
+| Lucys924/awesome-claude-code | 2026-10-03 | skipped | 0 stars, copy of general list |
