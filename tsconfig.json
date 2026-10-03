@@ -1,0 +1,7 @@
+{
+  "extends": "./plugin/.claude-plugin/types/tsconfig.json",
+  "compilerOptions": {
+    "rootDirs": ["plugin", "."]
+  },
+  "include": ["plugin/hooks", "tests"]
+}

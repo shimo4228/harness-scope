@@ -5,7 +5,7 @@
 ハーネスはグローバルに 1 つ。Claude に何を見せるかは repo が選ぶ。
 
 ![Claude Code 2.1.287+](https://img.shields.io/badge/Claude%20Code-2.1.287%2B-D97757)
-![version 0.1.2](https://img.shields.io/badge/version-0.1.2-blue)
+![version 0.1.3](https://img.shields.io/badge/version-0.1.3-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 <p align="center">
