@@ -1,6 +1,7 @@
 {
   "name": "harness-scope",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Turn global skills, rules, agents and tools on or off per repo with named profiles",
-  "author": { "name": "shimo4228" }
+  "author": { "name": "shimo4228" },
+  "license": "MIT"
 }

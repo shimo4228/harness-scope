@@ -127,9 +127,10 @@ event ごとの動作・不変条件・テストは plan（下の Status）が�
 
 - 2026-10-03 — Phase 0 を終え、v0.1 を実装して実機で確かめた。名前を `harness-scope` に決めた（repo 名も合わせる）。
   先行例 claude-loadout・bridle を Prior art に足した
+- 2026-10-03 — README（英語・日本語）と概要図を書き、LICENSE（MIT）を足し、version を 0.1.0 にした。Plan:
+  [docs/plans/RFC-0001-s2-readme.md](../docs/plans/RFC-0001-s2-readme.md)
 
 ## Next action
 
-- README（skill: readme-writer）
 - 執筆 repo で使う profile の中身を決める
 - 公開（GitHub repo の公開と awesome-list への投稿）は著者の確認を経て行う

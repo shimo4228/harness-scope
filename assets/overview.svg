@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" role="img" aria-labelledby="title desc">
+  <title id="title">How harness-scope works</title>
+  <desc id="desc">You keep named profiles, such as writing, once in ~/.claude. A repo picks one with a one-line JSON file. Claude then sees only the skills, agents, rules and tools that profile allows. The repo's own skills, agents and CLAUDE.md always stay.</desc>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #24292F; }
+    .emo { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+    .lbl { font-size: 30px; font-weight: 700; }
+    .sub { font-size: 22px; fill: #57606A; }
+    .chip { font-size: 18px; font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .band { font-size: 24px; font-weight: 600; }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8C959F"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="440" rx="28" fill="#FFFBF2" stroke="#EADFC8" stroke-width="2"/>
+
+  <!-- 1. profiles in ~/.claude -->
+  <rect x="36" y="36" width="250" height="256" rx="22" fill="#E7F0FA" stroke="#6A9BC3" stroke-width="2.5"/>
+  <text class="emo" x="161" y="126" font-size="76" text-anchor="middle">🗂️</text>
+  <text class="lbl" x="161" y="196" text-anchor="middle">Profiles</text>
+  <text class="sub" x="161" y="230" text-anchor="middle">kept in ~/.claude</text>
+  <rect x="106" y="248" width="110" height="30" rx="15" fill="#FFFFFF" stroke="#6A9BC3" stroke-width="1.5"/>
+  <text class="chip" x="161" y="269" text-anchor="middle" fill="#0B5394">writing</text>
+
+  <line x1="294" y1="164" x2="340" y2="164" stroke="#8C959F" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <!-- 2. the repo picks one -->
+  <rect x="355" y="36" width="250" height="256" rx="22" fill="#EBE4FA" stroke="#8B72D6" stroke-width="2.5"/>
+  <text class="emo" x="480" y="126" font-size="76" text-anchor="middle">📌</text>
+  <text class="lbl" x="480" y="196" text-anchor="middle">A repo picks one</text>
+  <text class="sub" x="480" y="230" text-anchor="middle">with one line</text>
+  <rect x="364" y="248" width="232" height="30" rx="15" fill="#FFFFFF" stroke="#8B72D6" stroke-width="1.5"/>
+  <text class="chip" x="480" y="269" text-anchor="middle" fill="#5B45B0">"profile": "writing"</text>
+
+  <line x1="613" y1="164" x2="659" y2="164" stroke="#8C959F" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <!-- 3. Claude sees only what it allows -->
+  <rect x="674" y="36" width="250" height="256" rx="22" fill="#E2F5E9" stroke="#57A874" stroke-width="2.5"/>
+  <text class="emo" x="799" y="126" font-size="76" text-anchor="middle">👁️</text>
+  <text class="lbl" x="799" y="196" text-anchor="middle">Claude sees</text>
+  <text class="sub" x="799" y="230" text-anchor="middle">only what it allows</text>
+  <text class="sub" x="799" y="264" text-anchor="middle" font-size="17">skills, agents, rules, tools</text>
+
+  <!-- the part that does not change -->
+  <rect x="36" y="320" width="888" height="88" rx="20" fill="#F3F4F6" stroke="#6E7781" stroke-width="2" stroke-dasharray="7 6"/>
+  <text class="emo" x="84" y="378" font-size="40" text-anchor="middle">🏠</text>
+  <text class="band" x="120" y="372">The repo's own skills, agents and CLAUDE.md always stay.</text>
+</svg>
