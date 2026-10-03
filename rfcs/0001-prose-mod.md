@@ -1,88 +1,126 @@
 ---
-state: draft 2026-10-03
-review-when: Claude Code の Mods API（prompt.section / tool.describe / prompt.attachment）の event 名や戻り値が変わったとき。または、執筆向けに同じ範囲を扱う Mod が先に公開されたとき
+state: in_progress 2026-10-03
+review-when: Claude Code の Mods API（prompt.attachment / prompt.context / agent.offer / tool.describe / tool.call）の event 名や戻り値が変わったとき。Claude Code 本体が、repo 間で共有できる skill・rules・agent の ON/OFF（名前付き preset など）をネイティブに持ったとき。同じ範囲を扱う Mod が先に公開されたとき
 ---
 ## Summary
 
-執筆用の repo で Claude Code を使うとき、コーディング前提のシステムプロンプトの節・ツールの説明文・リマインダーをモデルに渡さないようにする Mod を作り、Mods の正式提供（v2.1.287）直後のうちに公開して、awesome-list に載せる。
+global の harness（`~/.claude` の CLAUDE.md と rules、user と plugin の skill・agent、ツール）を、global に定義した名前付き
+profile で repo ごとに ON/OFF する Claude Code の Mod を作り、Mods の正式提供（v2.1.287）直後のうちに公開して、awesome-list
+に載せる。執筆用の repo からコーディング前提の文脈を外すのは、その profile の 1 つ（`writing`）として扱う。
 
 ## Motivation
 
-- 記事やエッセイを書く repo でも、Claude Code はコーディング用の文脈をそのままモデルに渡している。執筆には不要な指示がモデルの判断に混ざり、context も消費する
-- 出力スタイル（`keep-coding-instructions: false`）で外せるのは、コーディング指示の節のまとまりだけ。残りの節・ツールの説明文・リマインダーには届かない
-- Mods は v2.1.287 で既定有効になったばかり（2026-10-03 確認）。執筆向けの Mod は、確認した範囲ではまだ公開されていない（未検証。下の Unresolved questions）。先に出せば、著者の新しい導線になる
+- 記事やエッセイを書く repo でも、Claude Code は global の harness をそのままモデルに渡している。執筆には不要な指示が
+  モデルの判断に混ざり、context も消費する
+- 届いている量の大半は、Claude Code のコーディング用の既定ではなく、利用者自身の harness（rules・skills・agents）から
+  来ている（下の計測）
+- skill を repo ごとに置く運用は管理が割れる（著者の指摘、2026-10-03）。global に 1 か所で持ち、repo では選ぶだけにしたい
+- ネイティブ設定（`skillOverrides`・`claudeMdExcludes`・`permissions.deny` など）は repo の settings ごとに書く denylist で、
+  repo 間で共有する名前付きのまとまりが無い。本体への同じ要望（anthropics/claude-code#37463、#43928、#39749、#62174）は
+  閉じられている
+- 出力スタイル（`keep-coding-instructions: false`）で外せるのは、system prompt のコーディング指示だけ
+- Mods は v2.1.287 で既定有効になったばかり（2026-10-03 確認）。同じことをする公開 Mod は、確認した範囲では見つからな
+  かった。先に出せば、著者の新しい導線になる
 
 ### 計測（2026-10-03、prose-probe）
 
 書き換えずに記録だけする Mod（`probe/`）を、著者の執筆 repo で `claude -p` に 1 回読み込ませた。プロンプトは短い 1 文。
 
-| 種類 | 件数 | 字数 |
+| 種類 | Mod が見た量 | モデルに届いた量 |
 |---|---|---|
-| システムプロンプトの名前付き節（`prompt.section`） | 24（うち空でないもの 10） | 5,029 |
-| ツールの説明文（`tool.describe`） | 152 | 109,411 |
-| リマインダー類（`prompt.attachment`） | 12 種 | 94,459 |
+| システムプロンプトの名前付き節（`prompt.section`） | 24（うち空でないもの 10）/ 5,029 字 | 同じ。本体の冒頭（`intro`・`doing_tasks` など）は `prompt.section` に出ず、未計測 |
+| ツールの説明文（`tool.describe`） | 152 件 / 109,411 字 | 14 件 / 14,630 字。残る 138 件は ToolSearch の後ろにあり、名前の一覧（5,918 字）だけが届いた |
+| リマインダー類（`prompt.attachment`） | 12 種 / 94,459 字 | 同じ |
 
-- 節の中に、執筆では不要なコーディング前提の文がある。例: `communication` 節の「周りのコードに合わせてコードを書く」
-- 流入の大半は節の外にある。ツールの説明文の上位は Monitor 6,581 字、SendMessage 4,259 字、Workflow 3,207 字など。リマインダーの上位は `instructions`（CLAUDE.md と rules）37,495 字、`skill_listing` 26,342 字、`agent_listing_delta` 17,921 字
+- リマインダーの上位は `instructions`（CLAUDE.md と rules、21 ファイル）37,495 字、`skill_listing` 26,342 字、
+  `agent_listing_delta` 17,921 字。`instructions` のうち 16 ファイルは global の harness
+- 初版（2026-10-03）は、ToolSearch の後ろにあるツールの説明文も届いた量として数えていた。訂正は詳細設計（下の Status）で
+  行った
 - 数値はこの 1 回、この環境（MCP サーバーや skill の数）での値。環境ごとに大きく変わる
 
 ## Guide-level explanation
 
-- 利用者は、執筆用の repo でだけこの Mod を有効にする。コーディング用の repo では読み込まない
-- 有効にすると、モデルが受け取るのは「執筆に要る指示と道具」だけになる。外したもの・残したものは、Mod が一覧で示せるようにする
+- 利用者は Mod を 1 回 install し、global に名前付き profile（例 `writing`）を置く。repo には `{ "profile": "writing" }` の
+  1 行だけを置く
+- profile を選んだ repo では、profile で OFF にした skill・agent・rules・ツールがモデルに渡らない。選んでいない repo では
+  何も変わらない
+- 外したものと、profile に書いたのに一致しなかった名前は、確認コマンドで見られる
 
 ## Reference-level explanation
 
-使える口（公式ドキュメント 2026-10-03 確認: code.claude.com/docs/en/plugins/mods/reference）:
+使う口（2.1.287 が書いた型定義、2026-10-03 確認）:
 
-- `prompt.section`: システムプロンプトの節ごとに `{ text }` で書き換え、`{ text: null }` で省く
-- `tool.describe`: ツールの説明文を書き換える
-- `prompt.attachment`: Claude Code が差し込むリマインダーを書き換える、または省く
-- `skill.prompt`: skill を展開した本文を書き換える
+- `prompt.attachment`（`skill_listing`・`deferred_tools_delta`）: 一覧から項目を外す
+- `prompt.context`: `instructionFiles` から user の指示ファイルを外す（組み込みの `agents-md` Mod と同じ口）
+- `agent.offer`: subagent の型を一覧から外し、dispatch も断る
+- `tool.describe`: `isDeferred: true` でツールを ToolSearch の後ろへ回す
+- `tool.call`: OFF にした skill・ツールの呼び出しを理由つきで断る
 
 制約:
 
-- 配布は通常のプラグインと同じ（marketplace / `--plugin-dir`）
-- repo ごとに有効にする方法は詳細設計で決める（候補: プロジェクト設定の `enabledPlugins`、`--plugin-dir`）
-- 外してはいけないもの（安全・権限・環境情報など）の線引きが必要
+- 配布は通常のプラグインと同じ（marketplace / `--plugin-dir`）。plugin 名は `claude-` で始められない
+- repo 側のファイルは profile の名前を選ぶだけ。clone した repo が、利用者の安全側の rules を黙って外せないようにする
+- managed の指示、repo 自身の skill・agent・指示ファイル、hook と他の plugin の出力は外さない
+- system prompt の節には v0.1 では触れない（出力スタイルに任せる）
+
+event ごとの動作・不変条件・テストは plan（下の Status）が持つ。
 
 ## Drawbacks
 
-- 内部の節 id（例: `communication`）やリマインダーの種別名は、Claude Code の版で変わりうる。追従のコストがかかる
-- 外しすぎると、Claude Code の安全側の挙動（取り消しにくい操作の前の確認など）まで失う
-- 記事の質は、著者が執筆にどう関わるかで決まる部分が大きい（著者のこれまでの観察、2026-10-03）。この Mod が変えるのは、モデルが受け取る文脈だけ
+- リマインダーの種別名や一覧の本文の形式は、Claude Code の版で変わりうる。追従のコストがかかる。知らない形式は素通しに
+  するので、壊れたときは黙って効かなくなる側に倒れる
+- 見せるかどうかの制御で、強制ではない。モデルが SKILL.md を直接読めば読める
+- 後から付く指示ファイル（`paths:` 付きの rule、下位ディレクトリの CLAUDE.md）は外れない
+- 記事の質は、著者が執筆にどう関わるかで決まる部分が大きい（著者のこれまでの観察、2026-10-03）。この Mod が変えるのは、
+  モデルが受け取る文脈だけ
 
 ## Rationale and alternatives
 
-- **出力スタイルだけ使う**: コーディング指示の節は外れる。ほかには届かない
+- **出力スタイルだけ使う**: system prompt のコーディング指示は外れる。指示ファイルと一覧には届かない
+- **ネイティブ設定を repo ごとに書く**（`skillOverrides`・`claudeMdExcludes`・`permissions.deny`・`enabledPlugins`）:
+  repo ごとの denylist になり、あとから global に足した skill は執筆 repo にも入る。plugin の skill には `skillOverrides` が
+  効かない。個々の設定は README で併用を案内する
+- **skill を repo ごとに置く**（symlink やコピー）: 管理が割れる
 - **`--system-prompt` で丸ごと差し替える**: 起動フラグが必要で、Claude Code の安全側の指示もまとめて消える
-- **Mod を作る（この提案）**: 節・ツール・リマインダーを個別に扱え、配布もできる
+- **Mod を作る（この提案）**: global に 1 か所で定義し、repo では名前で選ぶ。allowlist も書ける
 
 ## Prior art
 
-- 書き換えを使う既存の Mod の例: `davila7/claude-code-templates` の `jev-skill-suggestion`（`skill_listing` を書き換える）
+- `davila7/claude-code-templates` の `jev-skill-suggestion`: `skill_listing` を allowlist で絞る。allowlist は user 単位
+- `EliaAlberti/jev-rules`: prompt ごとに外部モデルが rules を選ぶ（動的で、API が要る）
+- 組み込みの `agents-md` Mod: `prompt.context` で指示ファイルを足し、外す
+- `darkroomengineering/cc-settings` の `context-report`: 読み込まれた指示ファイルを表示する
 - Mods の一覧: `karanb192/awesome-claude-code-mods`
 
 ## Unresolved questions
 
-- 出力スタイル（`keep-coding-instructions: false`）だけで十分ではないか。出力スタイルを入れた状態で prose-probe を回し、残る節・ツール説明・リマインダーのうち執筆の邪魔になるものがどれだけあるかを見てから、Mod を作るかを決める
-- 執筆向けの Mod が既に公開されていないか（一覧と marketplace の再確認）
-- `prompt.compose` の hook が記録を 1 件も残さなかった理由。節の外にある本体のシステムプロンプトがどこまで `prompt.section` で見えているか
-- 何を外し、何を残すか（安全・権限・メモリ・環境情報の扱い）
-- 外したあとに執筆の質が変わるかを、どう確かめるか
-- 名前と公開先（単独 repo か、marketplace か）
+詳細設計（2026-10-03）で、初版の問いのうち次を決めた。決定と根拠は plan にある:
+出力スタイルだけで足りるか（足りない）、執筆向けの Mod が既にあるか（確認した範囲では無い）、`prompt.compose` が記録を
+残さなかった理由（probe の不具合）、何を外し何を残すか、質が変わるかの確かめ方。
+
+残る問い:
+
+- ネイティブ設定（`skillOverrides`・`claudeMdExcludes`・project の `enabledPlugins`・deny `Agent(name)`）が、2.1.287 で
+  実際にどこまで効くか（Phase 0）
+- 指示ファイルがどの経路でモデルに届くか。subagent にも効くか（Phase 0）
+- skill の一覧の中で、repo 自身の skill を見分けられるか。見分けられなければ skill は deny だけにする（Phase 0）
+- 名前と公開先（範囲が広がったので repo 名から考え直す）
 
 ## Future possibilities
 
-- 執筆以外の用途（調査・ノート整理）向けのプリセット
-- 外した量を表示するコマンド
+- system prompt の節も profile で扱う（Phase 0 の計測で残りを見てから）
+- MCP サーバーの instructions
+- 調査・ノート整理向けの profile
 
 ## Status
 
-draft 2026-10-03 — 提案と初回の計測まで。詳細設計は別セッションで行う。`probe/` は記録用の試作で、出力先のパスがまだ固定されている。
+- draft 2026-10-03 — 提案と初回の計測まで
+- accepted 2026-10-03 — 詳細設計を承認し、範囲を repo ごとの ON/OFF に広げた。Plan:
+  [docs/plans/distributed-purring-unicorn.md](../docs/plans/distributed-purring-unicorn.md)
+- in_progress 2026-10-03 — Phase 0（計測）と verify-bootstrap から着手
 
 ## Next action
 
-- 詳細設計のセッションを開き、Unresolved questions を順に決める
-- 実装の前に、skill: verify-bootstrap で `.claude/verify.sh` を作る
+- Phase 0: probe を直し、ネイティブ設定の効きと、指示ファイル・skill 一覧の経路を確かめる
+- skill: verify-bootstrap で `.claude/verify.sh` を作る
 - 公開（GitHub repo の公開と awesome-list への投稿）は著者の確認を経て行う

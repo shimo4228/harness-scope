@@ -9,4 +9,4 @@
 
 | # | Title |
 |---|---|
-| [0001](0001-prose-mod.md) | 執筆用 repo からコーディング前提の文脈を外す Claude Code Mod |
+| [0001](0001-prose-mod.md) | global の skill・rules・agent を repo ごとに ON/OFF する Claude Code Mod（執筆向け profile 付き） |
