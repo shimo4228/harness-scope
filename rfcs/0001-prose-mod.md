@@ -129,8 +129,9 @@ event ごとの動作・不変条件・テストは plan（下の Status）が�
   先行例 claude-loadout・bridle を Prior art に足した
 - 2026-10-03 — README（英語・日本語）と概要図を書き、LICENSE（MIT）を足し、version を 0.1.0 にした。Plan:
   [docs/plans/RFC-0001-s2-readme.md](../docs/plans/RFC-0001-s2-readme.md)
+- 2026-10-03 — GitHub に public で公開した（https://github.com/shimo4228/harness-scope）。About の description と topics を設定
 
 ## Next action
 
 - 執筆 repo で使う profile の中身を決める
-- 公開（GitHub repo の公開と awesome-list への投稿）は著者の確認を経て行う
+- awesome-claude-code-mods への投稿は著者の確認を経て行う
