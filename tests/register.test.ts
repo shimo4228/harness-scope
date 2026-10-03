@@ -1,12 +1,12 @@
-// prose-mod through the engine's events: pass-through, filtering, refusals, lifecycle.
+// harness-scope through the engine's events: pass-through, filtering, refusals, lifecycle.
 // The test's own `on` hooks stand for the engine (session, fs, env and the composed text).
 import type { On, SessionUsage } from 'claude-code'
 import { describe, expect, test } from 'claude-code/testing'
 
 const HOME = '/h'
 const ROOT = '/r'
-const SELECTOR = `${ROOT}/.claude/prose-mod.json`
-const OWN_PROFILE = `${HOME}/.claude/prose-mod/profiles/writing.json`
+const SELECTOR = `${ROOT}/.claude/harness-scope.json`
+const OWN_PROFILE = `${HOME}/.claude/harness-scope/profiles/writing.json`
 
 const LISTING = [
   'The following skills are available for use with the Skill tool:',
@@ -55,7 +55,7 @@ function world(on: On, disk: Record<string, string>, opts: { surfaces?: readonly
 }
 
 // The engine stamps origin and presentation on a typed command; the test leaves them to it.
-const RUN_PROSE_MOD = { command: 'prose-mod', args: '' } as never
+const RUN_PROSE_MOD = { command: 'harness-scope', args: '' } as never
 
 const WRITING = JSON.stringify({
   skills: { allow: ['adr-*'] },
@@ -220,7 +220,7 @@ describe('lifecycle', () => {
 })
 
 describe('receipt and edges', () => {
-  test('/prose-mod shows the names on screen and returns nothing the model reads', async ($, on) => {
+  test('/harness-scope shows the names on screen and returns nothing the model reads', async ($, on) => {
     const logs = world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING })
     await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })
     const r = await $.command.run(RUN_PROSE_MOD)
@@ -234,7 +234,7 @@ describe('receipt and edges', () => {
     const r = await $.command.run(RUN_PROSE_MOD)
     expect(r.text ?? '').toContain('profile "writing"')
     expect(r.text ?? '').toContain('skills (allow): 2 off — tdd, hookify:configure')
-    expect(r.text ?? '').not.toMatch(/^prose-mod:/)
+    expect(r.text ?? '').not.toMatch(/^harness-scope:/)
   })
 
   test('before anything is composed, the receipt says so instead of "matched nothing"', async ($, on) => {

@@ -9,4 +9,4 @@
 
 | # | Title |
 |---|---|
-| [0001](0001-prose-mod.md) | global の skill・rules・agent を repo ごとに ON/OFF する Claude Code Mod（執筆向け profile 付き） |
+| [0001](0001-prose-mod.md) | harness-scope: global の skill・rules・agent を repo ごとに ON/OFF する Claude Code Mod |

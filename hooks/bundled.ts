@@ -1,4 +1,4 @@
-// Profiles shipped with the mod. A profile of the same name in ~/.claude/prose-mod/profiles/ takes precedence.
+// Profiles shipped with the mod. A profile of the same name in ~/.claude/harness-scope/profiles/ takes precedence.
 import type { Profile } from './profile'
 
 export const BUNDLED: Readonly<Record<string, Profile>> = {

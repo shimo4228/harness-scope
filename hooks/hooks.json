@@ -1,1 +1,1 @@
-{ "description": "prose-mod hooks module", "modules": ["./register.ts"] }
+{ "description": "harness-scope hooks module", "modules": ["./register.ts"] }

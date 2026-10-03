@@ -1,4 +1,4 @@
-// Pure parts of prose-mod: profile parsing, listing filters, instruction-file filters.
+// Pure parts of harness-scope: profile parsing, listing filters, instruction-file filters.
 // Fixtures mimic the 2.1.287 formats measured in docs/measurements/2026-10-03-phase0.md.
 import { describe, expect, test } from 'claude-code/testing'
 import { filterInstructionFiles } from '../hooks/instructions'

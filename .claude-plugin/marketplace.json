@@ -1,10 +1,10 @@
 {
-  "name": "prose-mod",
+  "name": "harness-scope",
   "description": "Per-repo profiles for your global Claude Code skills, agents, rules and tools",
   "owner": { "name": "shimo4228" },
   "plugins": [
     {
-      "name": "prose-mod",
+      "name": "harness-scope",
       "source": "./",
       "description": "Turn global skills, rules, agents and tools on or off per repo with named profiles"
     }

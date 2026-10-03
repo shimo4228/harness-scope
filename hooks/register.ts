@@ -1,4 +1,4 @@
-// prose-mod: turn global skills, agents, instruction files and tools on or off per repo with a named profile.
+// harness-scope: turn global skills, agents, instruction files and tools on or off per repo with a named profile.
 // Plan: docs/plans/rfc-0001-r2-profile-allowlist.md. Invariants (tests/): no selector, a broken profile or an
 // unknown format means pass-through; output is a stable function of input and profile; the repo's own parts,
 // managed files and hook/plugin output are never touched; no network, processes or model calls.
@@ -8,7 +8,7 @@ import { filterInstructionFiles } from './instructions'
 import { filterDeferredTools, filterSkillListing } from './listing'
 import { compileRule, type Profile, parseProfile, parseSelector, type Rule, unmatchedPatterns } from './profile'
 
-const SELECTOR = '.claude/prose-mod.json'
+const SELECTOR = '.claude/harness-scope.json'
 
 type Active = {
   readonly status: 'on'
@@ -94,7 +94,7 @@ async function load($: EngineInterface): Promise<Loaded> {
   if (selector === null) return { status: 'off' }
   const sel = parseSelector(selector.text)
   if (!sel.ok) return { status: 'error', reason: `${selector.path}: ${sel.reason}` }
-  const own = `${home}/.claude/prose-mod/profiles/${sel.profile}.json`
+  const own = `${home}/.claude/harness-scope/profiles/${sel.profile}.json`
   if (home !== '' && (await $.fs.exists(own))) {
     const text = await $.fs.read(own)
     const parsed = typeof text === 'string' ? parseProfile(text) : { ok: false as const, reason: 'not text' }
@@ -110,11 +110,11 @@ async function current($: EngineInterface): Promise<Loaded> {
   if (loading === undefined) {
     loading = load($).catch((err: unknown) => ({ status: 'error' as const, reason: String(err) }))
     const loaded = await loading
-    if (loaded.status === 'error') $.ui.log(`prose-mod: passing everything through — ${loaded.reason}`)
+    if (loaded.status === 'error') $.ui.log(`harness-scope: passing everything through — ${loaded.reason}`)
     // A repo chooses which of the user's profiles applies; say so on screen every time one turns on.
     if (loaded.status === 'on') {
       $.ui.log(
-        `prose-mod: profile "${loaded.name}" from ${shortPath(loaded.from)}, selected by ${shortPath(loaded.selector)}`,
+        `harness-scope: profile "${loaded.name}" from ${shortPath(loaded.from)}, selected by ${shortPath(loaded.selector)}`,
       )
     }
   }
@@ -165,7 +165,7 @@ function receiptText(loaded: Loaded): string {
 }
 
 function skillDeny(name: string, profile: string): string {
-  return `The skill "${name}" is turned off in this repo by the prose-mod profile "${profile}". If it is needed, ask the user to run /${name} themselves.`
+  return `The skill "${name}" is turned off in this repo by the harness-scope profile "${profile}". If it is needed, ask the user to run /${name} themselves.`
 }
 
 // The skill listing with off skills removed; the input unchanged when it cannot be filtered safely.
@@ -207,14 +207,14 @@ export function register(on: On): void {
 
   on('session.start', async ($, e, next) => {
     await $.command.register({
-      name: 'prose-mod',
-      description: 'Show what the prose-mod profile turned off in this repo',
+      name: 'harness-scope',
+      description: 'Show what the harness-scope profile turned off in this repo',
     })
     return next(e)
   })
 
   on('command.run', async ($, e, next) => {
-    if (e.command !== 'prose-mod') return next(e)
+    if (e.command !== 'harness-scope') return next(e)
     const text = receiptText(await current($))
     // The command's text output reaches the model; on a screen, show the names there instead.
     if ((await $.session.surfaces()).length === 0) return { text }
@@ -270,7 +270,7 @@ export function register(on: On): void {
     const loaded = await current($)
     if (loaded.status !== 'on') return next(e)
     if (loaded.profile.tools !== undefined && !loaded.keepTool(e.tool)) {
-      return { deny: `The tool ${e.tool} is turned off in this repo by the prose-mod profile "${loaded.name}".` }
+      return { deny: `The tool ${e.tool} is turned off in this repo by the harness-scope profile "${loaded.name}".` }
     }
     if (e.tool === 'Skill') {
       const name = String(e.skill ?? '').replace(/^\//, '')

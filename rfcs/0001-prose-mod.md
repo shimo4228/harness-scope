@@ -5,7 +5,7 @@ review-when: Claude Code の Mods API（prompt.attachment / prompt.context / age
 ## Summary
 
 global の harness（`~/.claude` の CLAUDE.md と rules、user と plugin の skill・agent、ツール）を、global に定義した名前付き
-profile で repo ごとに ON/OFF する Claude Code の Mod を作り、Mods の正式提供（v2.1.287）直後のうちに公開して、awesome-list
+profile で repo ごとに ON/OFF する Claude Code の Mod（`harness-scope`）を作り、Mods の正式提供（v2.1.287）直後のうちに公開して、awesome-list
 に載せる。執筆用の repo からコーディング前提の文脈を外すのは、その profile の 1 つ（`writing`）として扱う。
 
 ## Motivation
@@ -20,7 +20,7 @@ profile で repo ごとに ON/OFF する Claude Code の Mod を作り、Mods �
   閉じられている
 - 出力スタイル（`keep-coding-instructions: false`）で外せるのは、system prompt のコーディング指示だけ
 - Mods は v2.1.287 で既定有効になったばかり（2026-10-03 確認）。同じことをする公開 Mod は、確認した範囲では見つからな
-  かった。先に出せば、著者の新しい導線になる
+  かった。目的の近いランチャー（claude-loadout）はある（下の Prior art）。先に出せば、著者の新しい導線になる
 
 ### 計測（2026-10-03、prose-probe）
 
@@ -90,12 +90,16 @@ event ごとの動作・不変条件・テストは plan（下の Status）が�
 - `EliaAlberti/jev-rules`: prompt ごとに外部モデルが rules を選ぶ（動的で、API が要る）
 - 組み込みの `agents-md` Mod: `prompt.context` で指示ファイルを足し、外す
 - `darkroomengineering/cc-settings` の `context-report`: 読み込まれた指示ファイルを表示する
+- claude-loadout（PyPI `ccloadout`）: Claude Code の前に挟むランチャー。手元のモデルで MCP・plugin・skill を選び、必要なものだけで
+  起動する。repo ごとの判断を `.loadout/` に保存する。目的は近いが、ランチャー（起動の仕方を選ぶ）・モデルによる選別・
+  agent と rules を扱わない点が違う（README の要約、2026-10-03）
+- bridle: Claude Code・OpenCode などの設定を名前付き profile で切り替える設定マネージャー（スニペット、2026-10-03）
 - Mods の一覧: `karanb192/awesome-claude-code-mods`
 
 ## Unresolved questions
 
 詳細設計（2026-10-03）で、初版の問いのうち次を決めた。決定と根拠は plan にある:
-出力スタイルだけで足りるか（足りない）、執筆向けの Mod が既にあるか（確認した範囲では無い）、`prompt.compose` が記録を
+出力スタイルだけで足りるか（足りない）、執筆向けの Mod が既にあるか（確認した範囲では無い。近いランチャーはある）、`prompt.compose` が記録を
 残さなかった理由（probe の不具合）、何を外し何を残すか、質が変わるかの確かめ方。
 
 残る問い:
@@ -104,7 +108,6 @@ event ごとの動作・不変条件・テストは plan（下の Status）が�
   実際にどこまで効くか（Phase 0）
 - 指示ファイルがどの経路でモデルに届くか。subagent にも効くか（Phase 0）
 - skill の一覧の中で、repo 自身の skill を見分けられるか。見分けられなければ skill は deny だけにする（Phase 0）
-- 名前と公開先（範囲が広がったので repo 名から考え直す）
 
 ## Future possibilities
 
@@ -122,8 +125,11 @@ event ごとの動作・不変条件・テストは plan（下の Status）が�
   [docs/plans/rfc-0001-r2-profile-allowlist.md](../docs/plans/rfc-0001-r2-profile-allowlist.md)、計測:
   [docs/measurements/2026-10-03-phase0.md](../docs/measurements/2026-10-03-phase0.md)
 
+- 2026-10-03 — Phase 0 を終え、v0.1 を実装して実機で確かめた。名前を `harness-scope` に決めた（repo 名も合わせる）。
+  先行例 claude-loadout・bridle を Prior art に足した
+
 ## Next action
 
-- Phase 0: probe を直し、ネイティブ設定の効きと、指示ファイル・skill 一覧の経路を確かめる
-- skill: verify-bootstrap で `.claude/verify.sh` を作る
+- README（skill: readme-writer）
+- 執筆 repo で使う profile の中身を決める
 - 公開（GitHub repo の公開と awesome-list への投稿）は著者の確認を経て行う
