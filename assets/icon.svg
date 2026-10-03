@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="t">
+  <title id="t">harness-scope icon: a lens over stacked cards, showing only some of them in color</title>
+  <defs>
+    <clipPath id="lens"><circle cx="512" cy="512" r="250"/></clipPath>
+  </defs>
+  <rect width="1024" height="1024" rx="200" fill="#FFFBF2"/>
+  <!-- the whole harness: faded cards -->
+  <g opacity="0.35">
+    <rect x="212" y="262" width="600" height="110" rx="40" fill="#E7F0FA" stroke="#6A9BC3" stroke-width="14"/>
+    <rect x="212" y="402" width="600" height="110" rx="40" fill="#EBE4FA" stroke="#8B72D6" stroke-width="14"/>
+    <rect x="212" y="542" width="600" height="110" rx="40" fill="#E2F5E9" stroke="#57A874" stroke-width="14"/>
+    <rect x="212" y="682" width="600" height="110" rx="40" fill="#FFF3D6" stroke="#D9A33C" stroke-width="14"/>
+  </g>
+  <!-- inside the lens: the cards the profile allows, in full color -->
+  <g clip-path="url(#lens)">
+    <circle cx="512" cy="512" r="250" fill="#FFFBF2"/>
+    <rect x="212" y="402" width="600" height="110" rx="40" fill="#EBE4FA" stroke="#8B72D6" stroke-width="14"/>
+    <rect x="212" y="542" width="600" height="110" rx="40" fill="#E2F5E9" stroke="#57A874" stroke-width="14"/>
+  </g>
+  <circle cx="512" cy="512" r="250" fill="none" stroke="#24292F" stroke-width="30"/>
+  <line x1="690" y1="690" x2="800" y2="800" stroke="#24292F" stroke-width="44" stroke-linecap="round"/>
+</svg>
