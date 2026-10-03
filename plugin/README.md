@@ -29,4 +29,4 @@ With no `.claude/harness-scope.json`, or with a profile it cannot read, every ho
 
 The Mod reads the profile files in `~/.claude/harness-scope/profiles/`, the repo's `.claude/harness-scope.json`, and Claude Code's session usage (only to tell the repo's own skills apart). It reads no environment variables: it finds `~/.claude` from where the plugin is installed, or from the optional `configDir` setting. It writes nothing, sends nothing over the network, starts no processes and calls no model.
 
-Usage, the profile format, measurements and limitations are in the [repository README](https://github.com/shimo4228/harness-scope#readme).
+Usage, the profile format, measurements and limitations are in the README of the shimo4228/harness-scope repository on GitHub.
