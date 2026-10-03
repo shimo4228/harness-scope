@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "files": { "includes": ["**", "!node_modules", "!**/.claude-plugin/types", "!probe", "!tools/probe/out"] },
+  "files": { "includes": ["**", "!node_modules", "!**/.claude-plugin/types", "!tools/probe/out"] },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
   "javascript": { "formatter": { "quoteStyle": "single", "semicolons": "asNeeded" } },
   "linter": {
