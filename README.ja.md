@@ -5,7 +5,7 @@
 ハーネスはグローバルに 1 つ。Claude に何を見せるかは repo が選ぶ。
 
 ![Claude Code 2.1.287+](https://img.shields.io/badge/Claude%20Code-2.1.287%2B-D97757)
-![version 0.1.1](https://img.shields.io/badge/version-0.1.1-blue)
+![version 0.1.2](https://img.shields.io/badge/version-0.1.2-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 <p align="center">
@@ -39,7 +39,7 @@ Mods が既定で有効になった Claude Code 2.1.287 以降が必要です。
    claude plugin install harness-scope@harness-scope
    ```
 
-   clone から試すときは `claude --plugin-dir <clone のパス>/plugin` で起動します。
+   clone から試すときは `claude --plugin-dir <clone のパス>/plugin` で起動します。この読み込み方では Mod が `~/.claude` の場所を知れないので、`claude plugin configure harness-scope` で `configDir` を設定するまでは同梱のプロファイルだけが使えます。
 
 2. プロファイルを決めます。同梱の `writing` はそのまま使えます。自分で書くときは [Profiles](#profiles) を見てください。
 
@@ -84,7 +84,7 @@ repo 側のファイルは、まずセッションの root、次に git repo の
 
 repo 側のファイルに書けるのはプロファイルの名前だけです。clone した repo が独自のプロファイルを定義して利用者の rules を外すことはできず、できるのは利用者のプロファイルから 1 つ選ぶことだけです。選んだときは画面に 1 行出ます。
 
-この Mod が読むのは、プロファイル、repo 側のファイル、`HOME`、そして repo 自身の skill を見分けるために Claude Code から受け取る「読み込まれた skill とそれぞれの出どころ」の一覧だけです。外部への通信、プロセスの起動、モデルの呼び出しはしません。
+この Mod が読むのは、プロファイル、repo 側のファイル、そして repo 自身の skill を見分けるために Claude Code から受け取る「読み込まれた skill とそれぞれの出どころ」の一覧だけです。環境変数は読まず、`~/.claude` の場所は Mod のインストール先から割り出します。外部への通信、プロセスの起動、モデルの呼び出しはしません。
 
 ## What changes
 

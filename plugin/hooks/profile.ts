@@ -90,3 +90,26 @@ export function unmatchedPatterns(rule: Rule | undefined, seen: Iterable<string>
   const names = [...seen]
   return rule.patterns.filter((p) => !names.some((n) => globToRegExp(p).test(n)))
 }
+
+const INSTALL_ANCHORS = ['/plugins/cache/', '/plugins/marketplaces/'] as const
+
+/**
+ * Claude Code's configuration directory (`~/.claude` by default), read off where the plugin is installed:
+ * an installed copy sits under `<config dir>/plugins/`. null for a checkout loaded with --plugin-dir.
+ * The mod reads no environment variable, so this is how it finds the user's profiles.
+ */
+export function configDirFromPluginRoot(root: string): string | null {
+  for (const anchor of INSTALL_ANCHORS) {
+    const at = root.lastIndexOf(anchor)
+    if (at > 0) return root.slice(0, at)
+  }
+  return null
+}
+
+/** Expands a leading `~/`: `~/.claude/` is the config dir; other `~/` paths use the home above a `.claude` config dir. */
+export function expandTilde(pattern: string, configDir: string): string {
+  if (!pattern.startsWith('~/')) return pattern
+  if (pattern.startsWith('~/.claude/')) return `${configDir}/${pattern.slice('~/.claude/'.length)}`
+  if (configDir.endsWith('/.claude')) return `${configDir.slice(0, -'/.claude'.length)}${pattern.slice(1)}`
+  return pattern
+}

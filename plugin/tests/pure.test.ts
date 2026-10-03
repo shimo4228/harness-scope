@@ -3,7 +3,7 @@
 import { describe, expect, test } from 'claude-code/testing'
 import { filterInstructionFiles } from '../hooks/instructions'
 import { filterDeferredTools, filterSkillListing } from '../hooks/listing'
-import { compileRule, parseProfile, parseSelector } from '../hooks/profile'
+import { compileRule, configDirFromPluginRoot, expandTilde, parseProfile, parseSelector } from '../hooks/profile'
 
 const LISTING = [
   'The following skills are available for use with the Skill tool:',
@@ -188,5 +188,30 @@ describe('filterInstructionFiles', () => {
   })
   test('keeping everything returns the same list', () => {
     expect(filterInstructionFiles(files, () => true).files).toEqual(files)
+  })
+})
+
+describe('configDirFromPluginRoot', () => {
+  test('an installed copy sits under <config dir>/plugins/', () => {
+    expect(configDirFromPluginRoot('/u/me/.claude/plugins/cache/harness-scope/harness-scope/0.1.1')).toBe(
+      '/u/me/.claude',
+    )
+    expect(configDirFromPluginRoot('/cfg/plugins/marketplaces/harness-scope/plugin')).toBe('/cfg')
+  })
+  test('a checkout loaded with --plugin-dir has no config dir', () => {
+    expect(configDirFromPluginRoot('/u/me/src/harness-scope/plugin')).toBe(null)
+  })
+})
+
+describe('expandTilde', () => {
+  test('~/.claude/ maps onto the config dir', () => {
+    expect(expandTilde('~/.claude/rules/a.md', '/cfg')).toBe('/cfg/rules/a.md')
+  })
+  test('other ~/ paths use the home above a .claude config dir', () => {
+    expect(expandTilde('~/notes/CLAUDE.md', '/u/me/.claude')).toBe('/u/me/notes/CLAUDE.md')
+  })
+  test('without a home to derive, other ~/ paths stay as written', () => {
+    expect(expandTilde('~/notes/CLAUDE.md', '/cfg')).toBe('~/notes/CLAUDE.md')
+    expect(expandTilde('/abs/x.md', '/cfg')).toBe('/abs/x.md')
   })
 })

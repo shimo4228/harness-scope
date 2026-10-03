@@ -7,6 +7,8 @@ const HOME = '/h'
 const ROOT = '/r'
 const SELECTOR = `${ROOT}/.claude/harness-scope.json`
 const OWN_PROFILE = `${HOME}/.claude/harness-scope/profiles/writing.json`
+// Claude Code's configuration directory as the userConfig field gives it; the plugin under test lives in a checkout.
+const CFG = { options: { configDir: `${HOME}/.claude` } }
 
 const LISTING = [
   'The following skills are available for use with the Skill tool:',
@@ -33,7 +35,6 @@ function world(on: On, disk: Record<string, string>, opts: { surfaces?: readonly
   const logs: string[] = []
   on('session.root', () => ({ value: ROOT }))
   on('session.repo', () => ({ value: null }))
-  on('env.get', (_$, e) => ({ value: e.name === 'HOME' ? HOME : undefined }))
   on('fs.exists', (_$, e) => ({ value: e.path in disk }))
   on('fs.read', (_$, e) => {
     const text = disk[e.path]
@@ -65,7 +66,7 @@ const WRITING = JSON.stringify({
 })
 
 describe('pass-through', () => {
-  test('a repo without a selector changes nothing and reads no file', async ($, on) => {
+  test('a repo without a selector changes nothing and reads no file', CFG, async ($, on) => {
     world(on, {})
     const listing = await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })
     expect(listing.text).toBe(LISTING)
@@ -83,7 +84,7 @@ describe('pass-through', () => {
     ).toBe(true)
   })
 
-  test('a broken profile passes everything through and says so once', async ($, on) => {
+  test('a broken profile passes everything through and says so once', CFG, async ($, on) => {
     const logs = world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: '{"skills":' })
     const listing = await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })
     expect(listing.text).toBe(LISTING)
@@ -91,13 +92,13 @@ describe('pass-through', () => {
     expect(logs.filter((l) => l.includes('passing everything through')).length).toBe(1)
   })
 
-  test('a selector that tries to carry a profile body is refused', async ($, on) => {
+  test('a selector that tries to carry a profile body is refused', CFG, async ($, on) => {
     world(on, { [SELECTOR]: JSON.stringify({ profile: 'writing', instructions: { deny: ['~/.claude/rules/*'] } }) })
     const ctx = await $.prompt.context({ blocks: [], instructionFiles: FILES })
     expect(ctx.instructionFiles).toEqual(FILES)
   })
 
-  test('hook and plugin output is never touched', async ($, on) => {
+  test('hook and plugin output is never touched', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING })
     const r = await $.prompt.attachment({
       type: 'skill_listing',
@@ -109,7 +110,7 @@ describe('pass-through', () => {
 })
 
 describe('with the writing profile', () => {
-  test('the skill listing keeps allowed skills and the repo’s own, byte for byte', async ($, on) => {
+  test('the skill listing keeps allowed skills and the repo’s own, byte for byte', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING })
     const r = await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })
     expect(r.text).toBe(
@@ -124,7 +125,7 @@ describe('with the writing profile', () => {
     expect(again.text).toBe(r.text)
   })
 
-  test('a removed skill is refused through the Skill tool; a kept one runs', async ($, on) => {
+  test('a removed skill is refused through the Skill tool; a kept one runs', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING })
     await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })
     const off = await $.tool.call({ tool: 'Skill', skill: 'tdd' })
@@ -134,13 +135,13 @@ describe('with the writing profile', () => {
     expect(kept.deny).toBeUndefined()
   })
 
-  test('user instruction files and their imports go; project files stay', async ($, on) => {
+  test('user instruction files and their imports go; project files stay', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING })
     const ctx = await $.prompt.context({ blocks: [], instructionFiles: FILES })
     expect(ctx.instructionFiles?.map((f) => f.path)).toEqual([`${HOME}/.claude/CLAUDE.md`, `${ROOT}/CLAUDE.md`])
   })
 
-  test('agents: denied ones are withheld, the repo’s own always offered', async ($, on) => {
+  test('agents: denied ones are withheld, the repo’s own always offered', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING })
     const provider = { plugin: 'engine', tier: 'core' } as const
     expect(
@@ -152,7 +153,7 @@ describe('with the writing profile', () => {
     )
   })
 
-  test('tools: an off tool is deferred and refused', async ($, on) => {
+  test('tools: an off tool is deferred and refused', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING })
     const d = await $.tool.describe({ tool: 'LSP', description: 'lsp', provider: { plugin: 'engine', tier: 'core' } })
     expect(d.isDeferred).toBe(true)
@@ -172,25 +173,25 @@ describe('with the writing profile', () => {
     expect(call.deny ?? '').toContain('turned off in this repo')
   })
 
-  test('turning Skill itself off in tools refuses every skill call', async ($, on) => {
+  test('turning Skill itself off in tools refuses every skill call', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: JSON.stringify({ tools: { deny: ['Skill'] } }) })
     expect((await $.tool.call({ tool: 'Skill', skill: 'writing-ecosystem' })).deny ?? '').toContain('turned off')
   })
 
-  test('activation is announced on screen with the selector that chose it', async ($, on) => {
+  test('activation is announced on screen with the selector that chose it', CFG, async ($, on) => {
     const logs = world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING })
     await $.prompt.context({ blocks: [], instructionFiles: FILES })
     expect(logs.some((l) => l.includes('profile "writing"') && l.includes('selected by'))).toBe(true)
   })
 
-  test('a selector naming an object built-in is not a bundled profile', async ($, on) => {
+  test('a selector naming an object built-in is not a bundled profile', CFG, async ($, on) => {
     const logs = world(on, { [SELECTOR]: '{"profile":"constructor"}' })
     const r = await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })
     expect(r.text).toBe(LISTING)
     expect(logs.join('\n')).toContain('not found')
   })
 
-  test('the bundled profile applies when the user has none of that name', async ($, on) => {
+  test('the bundled profile applies when the user has none of that name', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}' })
     const r = await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })
     expect(r.text).toBe(
@@ -204,7 +205,7 @@ describe('with the writing profile', () => {
 })
 
 describe('lifecycle', () => {
-  test('/clear reads the selector again', async ($, on) => {
+  test('/clear reads the selector again', CFG, async ($, on) => {
     const disk: Record<string, string> = {}
     world(on, disk)
     expect((await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })).text).toBe(
@@ -220,7 +221,7 @@ describe('lifecycle', () => {
 })
 
 describe('receipt and edges', () => {
-  test('/harness-scope shows the names on screen and returns nothing the model reads', async ($, on) => {
+  test('/harness-scope shows the names on screen and returns nothing the model reads', CFG, async ($, on) => {
     const logs = world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING })
     await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })
     const r = await $.command.run(RUN_PROSE_MOD)
@@ -228,7 +229,7 @@ describe('receipt and edges', () => {
     expect(logs.join('\n')).toContain('skills (allow): 2 off — tdd, hookify:configure')
   })
 
-  test('headless, the receipt comes back as text', async ($, on) => {
+  test('headless, the receipt comes back as text', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING }, { surfaces: [] })
     await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })
     const r = await $.command.run(RUN_PROSE_MOD)
@@ -237,14 +238,14 @@ describe('receipt and edges', () => {
     expect(r.text ?? '').not.toMatch(/^harness-scope:/)
   })
 
-  test('before anything is composed, the receipt says so instead of "matched nothing"', async ($, on) => {
+  test('before anything is composed, the receipt says so instead of "matched nothing"', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING }, { surfaces: [] })
     const r = await $.command.run(RUN_PROSE_MOD)
     expect(r.text ?? '').toContain('skills (allow): not composed yet in this conversation')
     expect(r.text ?? '').not.toContain('matched nothing')
   })
 
-  test('the repo’s own agents stay under an allowlist', async ($, on) => {
+  test('the repo’s own agents stay under an allowlist', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}' })
     const provider = { plugin: 'engine', tier: 'core' } as const
     expect(
@@ -255,14 +256,14 @@ describe('receipt and edges', () => {
     ).toBe(false)
   })
 
-  test('off tools leave the deferred-tools list too', async ($, on) => {
+  test('off tools leave the deferred-tools list too', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING })
     const text = 'The following deferred tools are now available via ToolSearch. Use ToolSearch:\nLSP\nWebFetch'
     const r = await $.prompt.attachment({ type: 'deferred_tools_delta', text, origin: { kind: 'engine' } })
     expect(r.text).toBe('The following deferred tools are now available via ToolSearch. Use ToolSearch:\nWebFetch')
   })
 
-  test('a 1,000-skill listing filters well inside a hook’s time limit', async ($, on) => {
+  test('a 1,000-skill listing filters well inside a hook’s time limit', CFG, async ($, on) => {
     world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING })
     const big = [
       'The following skills are available for use with the Skill tool:',
@@ -273,5 +274,18 @@ describe('receipt and edges', () => {
     const r = await $.prompt.attachment({ type: 'skill_listing', text: big, origin: { kind: 'engine' } })
     expect(Date.now() - t0).toBeLessThan(1000)
     expect(r.text).toBe('The following skills are available for use with the Skill tool:\n')
+  })
+})
+
+describe('configuration directory', () => {
+  test('with no configDir and a checkout install, only bundled profiles load and no env is read', async ($, on) => {
+    world(on, {
+      [SELECTOR]: JSON.stringify({ profile: 'writing' }),
+      [OWN_PROFILE]: JSON.stringify({ skills: { allow: ['tdd'] } }),
+    })
+    const listing = await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })
+    // The bundled writing profile keeps only the repo's own skills, so the user's file (allowing tdd) was not read.
+    expect(listing.text).not.toContain('- tdd:')
+    expect(listing.text).toContain('- writing-ecosystem:')
   })
 })

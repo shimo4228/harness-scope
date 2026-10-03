@@ -5,7 +5,7 @@
 Keep one global harness. Let each repo pick what Claude sees.
 
 ![Claude Code 2.1.287+](https://img.shields.io/badge/Claude%20Code-2.1.287%2B-D97757)
-![version 0.1.1](https://img.shields.io/badge/version-0.1.1-blue)
+![version 0.1.2](https://img.shields.io/badge/version-0.1.2-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 <p align="center">
@@ -39,7 +39,7 @@ You need Claude Code 2.1.287 or later, where Mods are on by default. No other ac
    claude plugin install harness-scope@harness-scope
    ```
 
-   To try it from a clone instead, start Claude Code with `claude --plugin-dir <path to the clone>/plugin`.
+   To try it from a clone instead, start Claude Code with `claude --plugin-dir <path to the clone>/plugin`. Loaded that way, the Mod cannot tell where `~/.claude` is, so only the bundled profiles work until you set it with `claude plugin configure harness-scope` (the `configDir` field).
 
 2. Choose a profile. The bundled `writing` profile works as is. To write your own, see [Profiles](#profiles).
 
@@ -84,7 +84,7 @@ Whatever a profile says, harness-scope does not touch:
 
 The repo file can only name a profile. A cloned repo cannot define its own profile and use it to turn off your rules; it can only pick one of yours, and a line on screen tells you when it does.
 
-The Mod reads the profile, the repo file, `HOME`, and the list of skills Claude Code has loaded with where each came from (to tell the repo's own skills apart). It makes no network requests, starts no processes and calls no model.
+The Mod reads the profile, the repo file, and the list of skills Claude Code has loaded with where each came from (to tell the repo's own skills apart). It reads no environment variables: it finds `~/.claude` from where the plugin is installed. It makes no network requests, starts no processes and calls no model.
 
 ## What changes
 

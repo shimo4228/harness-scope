@@ -2,11 +2,20 @@
 // Plan: docs/plans/rfc-0001-r2-profile-allowlist.md. Invariants (tests/): no selector, a broken profile or an
 // unknown format means pass-through; output is a stable function of input and profile; the repo's own parts,
 // managed files and hook/plugin output are never touched; no network, processes or model calls.
-import type { EngineInterface, On } from 'claude-code'
+import type { EngineInterface, On, PluginOptions } from 'claude-code'
 import { BUNDLED } from './bundled'
 import { filterInstructionFiles } from './instructions'
 import { filterDeferredTools, filterSkillListing } from './listing'
-import { compileRule, type Profile, parseProfile, parseSelector, type Rule, unmatchedPatterns } from './profile'
+import {
+  compileRule,
+  configDirFromPluginRoot,
+  expandTilde,
+  type Profile,
+  parseProfile,
+  parseSelector,
+  type Rule,
+  unmatchedPatterns,
+} from './profile'
 
 const SELECTOR = '.claude/harness-scope.json'
 
@@ -53,11 +62,13 @@ function newReceipt(): Receipt {
 let loading: Promise<Loaded> | undefined
 let projectSkills: Promise<Set<string> | null> | undefined
 let receipt = newReceipt()
-let home = ''
+// Claude Code's configuration directory: the userConfig field, else read off the install path. '' = unknown.
+let configuredDir = ''
+let configDir = ''
 
 function expandHome(rule: Rule | undefined): Rule | undefined {
   if (rule === undefined) return undefined
-  return { ...rule, patterns: rule.patterns.map((p) => (p.startsWith('~/') ? `${home}${p.slice(1)}` : p)) }
+  return { ...rule, patterns: rule.patterns.map((p) => (configDir === '' ? p : expandTilde(p, configDir))) }
 }
 
 function activate(name: string, from: string, selector: string, profile: Profile): Active {
@@ -89,13 +100,13 @@ async function readSelector($: EngineInterface): Promise<{ path: string; text: s
 }
 
 async function load($: EngineInterface): Promise<Loaded> {
-  home = (await $.env.get('HOME')) ?? ''
+  configDir = configuredDir !== '' ? configuredDir : (configDirFromPluginRoot($.plugin.root) ?? '')
   const selector = await readSelector($)
   if (selector === null) return { status: 'off' }
   const sel = parseSelector(selector.text)
   if (!sel.ok) return { status: 'error', reason: `${selector.path}: ${sel.reason}` }
-  const own = `${home}/.claude/harness-scope/profiles/${sel.profile}.json`
-  if (home !== '' && (await $.fs.exists(own))) {
+  const own = configDir === '' ? '' : `${configDir}/harness-scope/profiles/${sel.profile}.json`
+  if (own !== '' && (await $.fs.exists(own))) {
     const text = await $.fs.read(own)
     const parsed = typeof text === 'string' ? parseProfile(text) : { ok: false as const, reason: 'not text' }
     if (!parsed.ok) return { status: 'error', reason: `${own}: ${parsed.reason}` }
@@ -103,7 +114,11 @@ async function load($: EngineInterface): Promise<Loaded> {
   }
   const bundled = Object.hasOwn(BUNDLED, sel.profile) ? BUNDLED[sel.profile] : undefined
   if (bundled !== undefined) return activate(sel.profile, `bundled profile "${sel.profile}"`, selector.path, bundled)
-  return { status: 'error', reason: `profile "${sel.profile}" not found (looked for ${own} and the bundled profiles)` }
+  const where =
+    own === ''
+      ? 'the bundled profiles (set configDir with `claude plugin configure harness-scope` to use your own)'
+      : `${own} and the bundled profiles`
+  return { status: 'error', reason: `profile "${sel.profile}" not found (looked in ${where})` }
 }
 
 async function current($: EngineInterface): Promise<Loaded> {
@@ -137,7 +152,7 @@ async function ownSkills($: EngineInterface): Promise<Set<string> | null> {
 }
 
 function shortPath(path: string): string {
-  return home !== '' && path.startsWith(`${home}/`) ? `~${path.slice(home.length)}` : path
+  return configDir !== '' && path.startsWith(`${configDir}/`) ? `~/.claude${path.slice(configDir.length)}` : path
 }
 
 // Claude Code prefixes the command's output with the plugin name, so the lines carry none of their own.
@@ -195,7 +210,9 @@ function deferredTools(loaded: Active, text: string): string {
   return out.text
 }
 
-export function register(on: On): void {
+export function register(on: On, options: PluginOptions): void {
+  const configured = options.configDir
+  configuredDir = typeof configured === 'string' ? configured.replace(/\/+$/, '') : ''
   on('classic.SessionStart', async (_$, e, next) => {
     if (e.source === 'clear' || e.source === 'resume') {
       loading = undefined

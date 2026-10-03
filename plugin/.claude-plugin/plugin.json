@@ -1,9 +1,19 @@
 {
   "name": "harness-scope",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Turn global skills, rules, agents and tools on or off per repo with named profiles",
-  "author": { "name": "shimo4228" },
+  "author": {
+    "name": "shimo4228"
+  },
   "homepage": "https://github.com/shimo4228/harness-scope",
   "repository": "https://github.com/shimo4228/harness-scope",
-  "license": "MIT"
+  "license": "MIT",
+  "userConfig": {
+    "configDir": {
+      "type": "string",
+      "title": "Claude Code configuration directory",
+      "description": "Where your profiles live (<this>/harness-scope/profiles/). Leave empty: it is read off where the plugin is installed. Set it when you load the plugin with --plugin-dir.",
+      "default": ""
+    }
+  }
 }
