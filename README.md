@@ -119,6 +119,7 @@ Other ways to narrow what Claude sees:
 - If one of your own agents has the same name as a built-in one (such as Explore), turning it off hides the built-in as well.
 - A line inside a skill description shaped like `- name: text` can be read as a separate skill.
 - Checked on Claude Code 2.1.287 only. Listing formats can change between releases; a format it does not recognize passes through unchanged, so a break shows up as nothing being turned off.
+- On 2.1.287 the Mod was not loaded in 1 of 9 test runs, with no error shown, and that run passed everything through. The cause is not confirmed yet.
 
 ## Design notes
 
