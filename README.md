@@ -5,7 +5,7 @@
 Keep one global harness. Let each repo pick what Claude sees.
 
 ![Claude Code 2.1.287+](https://img.shields.io/badge/Claude%20Code-2.1.287%2B-D97757)
-![version 0.1.0](https://img.shields.io/badge/version-0.1.0-blue)
+![version 0.1.1](https://img.shields.io/badge/version-0.1.1-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 <p align="center">
