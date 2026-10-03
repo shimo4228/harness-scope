@@ -118,6 +118,9 @@ event ごとの動作・不変条件・テストは plan（下の Status）が�
 - accepted 2026-10-03 — 詳細設計を承認し、範囲を repo ごとの ON/OFF に広げた。Plan:
   [docs/plans/distributed-purring-unicorn.md](../docs/plans/distributed-purring-unicorn.md)
 - in_progress 2026-10-03 — Phase 0（計測）と verify-bootstrap から着手
+- 2026-10-03 — Phase 0 の途中結果を受けて plan を改訂（allowlist を中心に、rules とツールも同じ profile で扱う）。Plan:
+  [docs/plans/rfc-0001-r2-profile-allowlist.md](../docs/plans/rfc-0001-r2-profile-allowlist.md)、計測:
+  [docs/measurements/2026-10-03-phase0.md](../docs/measurements/2026-10-03-phase0.md)
 
 ## Next action
 
