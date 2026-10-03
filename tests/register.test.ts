@@ -233,7 +233,15 @@ describe('receipt and edges', () => {
     await $.prompt.attachment({ type: 'skill_listing', text: LISTING, origin: { kind: 'engine' } })
     const r = await $.command.run(RUN_PROSE_MOD)
     expect(r.text ?? '').toContain('profile "writing"')
-    expect(r.text ?? '').toContain('matched nothing')
+    expect(r.text ?? '').toContain('skills (allow): 2 off — tdd, hookify:configure')
+    expect(r.text ?? '').not.toMatch(/^prose-mod:/)
+  })
+
+  test('before anything is composed, the receipt says so instead of "matched nothing"', async ($, on) => {
+    world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING }, { surfaces: [] })
+    const r = await $.command.run(RUN_PROSE_MOD)
+    expect(r.text ?? '').toContain('skills (allow): not composed yet in this conversation')
+    expect(r.text ?? '').not.toContain('matched nothing')
   })
 
   test('the repo’s own agents stay under an allowlist', async ($, on) => {

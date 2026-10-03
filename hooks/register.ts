@@ -32,7 +32,6 @@ type Receipt = {
   seenAgents: Set<string>
   seenFiles: Set<string>
   seenTools: Set<string>
-  seenTypes: Set<string>
   notes: string[]
 }
 
@@ -46,7 +45,6 @@ function newReceipt(): Receipt {
     seenAgents: new Set(),
     seenFiles: new Set(),
     seenTools: new Set(),
-    seenTypes: new Set(),
     notes: [],
   }
 }
@@ -142,24 +140,26 @@ function shortPath(path: string): string {
   return home !== '' && path.startsWith(`${home}/`) ? `~${path.slice(home.length)}` : path
 }
 
+// Claude Code prefixes the command's output with the plugin name, so the lines carry none of their own.
 function receiptText(loaded: Loaded): string {
-  if (loaded.status === 'off') return `prose-mod: no ${SELECTOR} in this repo, so nothing is turned off.`
-  if (loaded.status === 'error') return `prose-mod: passing everything through — ${loaded.reason}`
+  if (loaded.status === 'off') return `no ${SELECTOR} in this repo, so nothing is turned off.`
+  if (loaded.status === 'error') return `passing everything through — ${loaded.reason}`
   const r = receipt
   const p = loaded.profile
   const line = (label: string, rule: Rule | undefined, removed: Set<string>, seen: Set<string>) => {
     if (rule === undefined) return `${label}: not in the profile`
+    // Before the first request nothing has been composed yet; "matched nothing" would be wrong then.
+    if (seen.size === 0 && removed.size === 0) return `${label} (${rule.mode}): not composed yet in this conversation`
     const miss = unmatchedPatterns(rule, seen)
     const names = [...removed].map(shortPath).join(', ')
     return `${label} (${rule.mode}): ${removed.size} off${names ? ` — ${names}` : ''}${miss.length ? `\n  matched nothing: ${miss.join(', ')}` : ''}`
   }
   return [
-    `prose-mod: profile "${loaded.name}" from ${shortPath(loaded.from)}`,
+    `profile "${loaded.name}" from ${shortPath(loaded.from)}, selected by ${shortPath(loaded.selector)}`,
     line('skills', p.skills, r.skills, r.seenSkills),
     line('agents', p.agents, r.agents, r.seenAgents),
     line('instructions', expandHome(p.instructions), r.files, r.seenFiles),
     line('tools', p.tools, r.tools, r.seenTools),
-    ...(p.skills && !r.seenTypes.has('skill_listing') ? ['not seen this conversation: the skill listing'] : []),
     ...r.notes,
   ].join('\n')
 }
@@ -239,7 +239,6 @@ export function register(on: On): void {
 
   on('prompt.attachment', async ($, e, next) => {
     const r = await next(e)
-    receipt.seenTypes.add(e.type)
     if (e.origin.kind !== 'engine' || r.text === null) return r
     const loaded = await current($)
     if (loaded.status !== 'on') return r
