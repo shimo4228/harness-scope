@@ -1,0 +1,261 @@
+<title>prose-mod 設計図</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~68ch) with figures allowed to run wider; blueprint-ink accent marks the Mod's own path */
+:root {
+  --bg: #f6f7f8;
+  --surface: #ffffff;
+  --fg: #1d2329;
+  --muted: #5b6672;
+  --line: #d3d9df;
+  --accent: #2c5f8f;
+  --accent-soft: #e3edf6;
+  --keep: #2f7a52;
+  --drop: #a6452f;
+  --font-body: "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181c; --surface: #1c2228; --fg: #e3e8ec; --muted: #9aa6b1; --line: #33404b;
+    --accent: #7fb0e0; --accent-soft: #1f3245; --keep: #6cc196; --drop: #e98b73; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181c; --surface: #1c2228; --fg: #e3e8ec; --muted: #9aa6b1; --line: #33404b;
+  --accent: #7fb0e0; --accent-soft: #1f3245; --keep: #6cc196; --drop: #e98b73; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.75; }
+main { max-width: 980px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 72px; }
+.col { max-width: 68ch; }
+h1 { font-size: 1.9rem; line-height: 1.3; margin: 0 0 .4rem; text-wrap: balance; letter-spacing: .01em; }
+h2 { font-size: 1.25rem; margin: 3rem 0 .8rem; text-wrap: balance; padding-top: 1.2rem; border-top: 1px solid var(--line); }
+p { margin: 0 0 1rem; }
+.lede { color: var(--muted); font-size: 1.02rem; }
+.eyebrow { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 .6rem; }
+code, .mono { font-family: var(--font-mono); font-size: .86em; }
+code { background: var(--accent-soft); padding: .05em .35em; border-radius: 3px; }
+figure { margin: 1.6rem 0 2rem; }
+.fig { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; overflow-x: auto; }
+.fig svg { display: block; width: 100%; height: auto; min-width: 640px; color: var(--fg); }
+figcaption { color: var(--muted); font-size: .88rem; margin-top: .6rem; max-width: 68ch; }
+.tbl { overflow-x: auto; margin: 1rem 0 1.6rem; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; min-width: 560px; }
+th, td { text-align: left; vertical-align: top; padding: .55rem .7rem; border-bottom: 1px solid var(--line); }
+th { font-weight: 500; color: var(--muted); font-size: .8rem; letter-spacing: .03em; }
+td.num { font-variant-numeric: tabular-nums; text-align: right; }
+.ok { color: var(--keep); font-weight: 500; }
+.ng { color: var(--drop); font-weight: 500; }
+.na { color: var(--muted); }
+ul { padding-left: 1.2rem; margin: 0 0 1rem; }
+li { margin: .25rem 0; }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 1rem 0 1.6rem; }
+.pair > div { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; min-width: 0; }
+.pair h3 { font-size: .95rem; margin: 0 0 .4rem; }
+pre { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: .82rem; line-height: 1.6; }
+.foot { color: var(--muted); font-size: .82rem; margin-top: 3rem; }
+</style>
+
+<main>
+  <p class="eyebrow">RFC-0001 · plan r2 · 2026-10-03 · Claude Code 2.1.287</p>
+  <h1>prose-mod 設計図</h1>
+  <div class="col">
+    <p class="lede">global の harness（skill・agent・rules・ツール）を、global に置いた名前付き profile 1 つで repo ごとに ON/OFF する Claude Code の Mod。執筆 repo には「使うものだけ」を見せる allowlist が中心で、執筆はその profile の 1 つ（<code>writing</code>）になる。</p>
+  </div>
+
+  <h2>1. 何がどこを通るか</h2>
+  <div class="col">
+    <p>Mod は Claude Code が組み立てた文脈と、モデルの間に入る。repo には profile の名前だけを置き、中身は global の 1 か所にある。Mod は会話の始まりにそれを読み、4 種類の部品をそれぞれの event で絞る。</p>
+  </div>
+  <figure>
+    <div class="fig">
+      <svg viewBox="0 0 940 470" role="img" aria-label="repo の選択ファイルが global の profile を名前で選び、Mod が会話の始まりにそれを読んで、skill 一覧・agent 一覧・指示ファイル・ツールをそれぞれの event で絞ってからモデルに渡す。repo 自身の部品と managed と hook の出力は素通しになる。">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          <marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+        </defs>
+        <g font-family="var(--font-body)" font-size="12.5" fill="currentColor">
+          <!-- selector and profile -->
+          <rect x="20" y="18" width="250" height="58" rx="5" fill="var(--surface)" stroke="currentColor" stroke-opacity=".45"/>
+          <text x="32" y="40" font-weight="700">repo の選択ファイル</text>
+          <text x="32" y="62" font-family="var(--font-mono)" font-size="11.5">.claude/prose-mod.json → "writing"</text>
+          <rect x="340" y="18" width="270" height="58" rx="5" fill="var(--accent-soft)" stroke="var(--accent)"/>
+          <text x="352" y="40" font-weight="700">global の profile</text>
+          <text x="352" y="62" font-family="var(--font-mono)" font-size="11.5">~/.claude/prose-mod/profiles/writing.json</text>
+          <line x1="270" y1="47" x2="336" y2="47" stroke="currentColor" marker-end="url(#ah)"/>
+          <text x="303" y="40" text-anchor="middle" font-size="11">名前で選ぶ</text>
+          <line x1="475" y1="76" x2="475" y2="106" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#aha)"/>
+          <text x="485" y="96" font-size="11" fill="var(--accent)">会話の始まり（起動・/clear・resume）に読む</text>
+
+          <!-- column headers -->
+          <text x="120" y="128" text-anchor="middle" font-weight="700">Claude Code が組み立てる</text>
+          <text x="475" y="128" text-anchor="middle" font-weight="700" fill="var(--accent)">Mod（hook）</text>
+          <text x="820" y="128" text-anchor="middle" font-weight="700">モデルが受け取る</text>
+
+          <!-- Mod frame -->
+          <rect x="330" y="140" width="290" height="268" rx="6" fill="none" stroke="var(--accent)" stroke-dasharray="4 3"/>
+
+          <!-- rows -->
+          <g>
+            <rect x="20" y="152" width="200" height="50" rx="5" fill="var(--surface)" stroke="currentColor" stroke-opacity=".45"/>
+            <text x="32" y="174" font-weight="500">skill 一覧</text><text x="32" y="192" font-size="11" fill="var(--muted)">101 件（予算で切られる）</text>
+            <rect x="345" y="152" width="260" height="50" rx="5" fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity=".6"/>
+            <text x="357" y="172" font-family="var(--font-mono)" font-size="11.5">prompt.attachment</text><text x="357" y="191" font-size="11.5">skill_listing の行を allow で絞る</text>
+            <rect x="720" y="152" width="200" height="50" rx="5" fill="var(--surface)" stroke="currentColor" stroke-opacity=".45"/>
+            <text x="732" y="174" font-weight="500">allow した skill</text><text x="732" y="192" font-size="11" fill="var(--muted)">+ repo 自身の skill</text>
+            <line x1="220" y1="177" x2="341" y2="177" stroke="currentColor" marker-end="url(#ah)"/>
+            <line x1="605" y1="177" x2="716" y2="177" stroke="var(--accent)" marker-end="url(#aha)"/>
+          </g>
+          <g>
+            <rect x="20" y="216" width="200" height="50" rx="5" fill="var(--surface)" stroke="currentColor" stroke-opacity=".45"/>
+            <text x="32" y="238" font-weight="500">agent 一覧</text><text x="32" y="256" font-size="11" fill="var(--muted)">38 型</text>
+            <rect x="345" y="216" width="260" height="50" rx="5" fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity=".6"/>
+            <text x="357" y="236" font-family="var(--font-mono)" font-size="11.5">agent.offer</text><text x="357" y="255" font-size="11.5">外す型に isOffered: false</text>
+            <rect x="720" y="216" width="200" height="50" rx="5" fill="var(--surface)" stroke="currentColor" stroke-opacity=".45"/>
+            <text x="732" y="238" font-weight="500">allow した agent</text><text x="732" y="256" font-size="11" fill="var(--muted)">+ repo 自身の agent</text>
+            <line x1="220" y1="241" x2="341" y2="241" stroke="currentColor" marker-end="url(#ah)"/>
+            <line x1="605" y1="241" x2="716" y2="241" stroke="var(--accent)" marker-end="url(#aha)"/>
+          </g>
+          <g>
+            <rect x="20" y="280" width="200" height="50" rx="5" fill="var(--surface)" stroke="currentColor" stroke-opacity=".45"/>
+            <text x="32" y="302" font-weight="500">指示ファイル</text><text x="32" y="320" font-size="11" fill="var(--muted)">21 件（CLAUDE.md・rules）</text>
+            <rect x="345" y="280" width="260" height="50" rx="5" fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity=".6"/>
+            <text x="357" y="300" font-family="var(--font-mono)" font-size="11.5">prompt.context</text><text x="357" y="319" font-size="11.5">user の instructionFiles を外す</text>
+            <rect x="720" y="280" width="200" height="50" rx="5" fill="var(--surface)" stroke="currentColor" stroke-opacity=".45"/>
+            <text x="732" y="302" font-weight="500">外していない指示</text><text x="732" y="320" font-size="11" fill="var(--muted)">repo・managed は必ず残る</text>
+            <line x1="220" y1="305" x2="341" y2="305" stroke="currentColor" marker-end="url(#ah)"/>
+            <line x1="605" y1="305" x2="716" y2="305" stroke="var(--accent)" marker-end="url(#aha)"/>
+          </g>
+          <g>
+            <rect x="20" y="344" width="200" height="50" rx="5" fill="var(--surface)" stroke="currentColor" stroke-opacity=".45"/>
+            <text x="32" y="366" font-weight="500">ツール</text><text x="32" y="384" font-size="11" fill="var(--muted)">155 件（先頭に載るのは 15）</text>
+            <rect x="345" y="344" width="260" height="50" rx="5" fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity=".6"/>
+            <text x="357" y="364" font-family="var(--font-mono)" font-size="11.5">tool.describe / tool.call</text><text x="357" y="383" font-size="11.5">後ろに回し、呼ばれたら断る</text>
+            <rect x="720" y="344" width="200" height="50" rx="5" fill="var(--surface)" stroke="currentColor" stroke-opacity=".45"/>
+            <text x="732" y="366" font-weight="500">残したツール</text><text x="732" y="384" font-size="11" fill="var(--muted)">OFF は名前も見えない</text>
+            <line x1="220" y1="369" x2="341" y2="369" stroke="currentColor" marker-end="url(#ah)"/>
+            <line x1="605" y1="369" x2="716" y2="369" stroke="var(--accent)" marker-end="url(#aha)"/>
+          </g>
+
+          <!-- bypass -->
+          <path d="M120,394 L120,440 L820,440 L820,398" fill="none" stroke="currentColor" stroke-dasharray="3 4" stroke-opacity=".7" marker-end="url(#ah)"/>
+          <text x="470" y="458" text-anchor="middle" font-size="11.5" fill="var(--muted)">素通し: repo 自身の部品・managed の指示・hook と他 plugin の出力・profile を選んでいない repo</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>図 1. Mod が入るのは「組み立て」と「モデル」の間。部品ごとに別の event で絞る。破線は Mod が触れずに通すもの。件数は 2026-10-03 の執筆 repo（C0）の実測。</figcaption>
+  </figure>
+
+  <h2>2. なぜ allowlist か</h2>
+  <div class="col">
+    <p>ネイティブ設定も repo ごとに部品を外せるが、どれも「これを外す」と名前を並べる denylist で、出どころによって外せる粒度が違う。Mod の allowlist は「これだけ使う」と書き、出どころを問わず効く。</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>skill の出どころ</th><th class="num">件数（C0）</th><th>ネイティブ（repo の settings）</th><th>Mod の allowlist</th></tr></thead>
+      <tbody>
+        <tr><td>user（<code>~/.claude/skills</code>）</td><td class="num">44</td><td><span class="ok">名前ごとに外せる</span>（<code>skillOverrides</code>）</td><td class="ok">書いたものだけ残る</td></tr>
+        <tr><td>plugin</td><td class="num">19</td><td><span class="ng">plugin 丸ごとのみ</span>（<code>enabledPlugins</code>）</td><td class="ok">1 つずつ選べる</td></tr>
+        <tr><td>built-in（<code>simplify</code> など）</td><td class="num">17</td><td class="na">未確認</td><td class="ok">1 つずつ選べる</td></tr>
+        <tr><td>claude.ai から同期（<code>anthropic-skills:*</code>）</td><td class="num">14</td><td class="na">未確認</td><td class="ok">1 つずつ選べる</td></tr>
+        <tr><td>repo 自身（<code>.claude/skills</code>）</td><td class="num">7</td><td>外さない</td><td>外さない（書き忘れても残る）</td></tr>
+        <tr><td><strong>あとから global に足した skill</strong></td><td class="num">—</td><td class="ng">denylist に足すまで入ってくる</td><td class="ok">書くまで入らない</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col">
+    <p>agent も同じ形で、ネイティブは <code>Agent(name)</code> の deny を名前ごとに並べる。rules とツールはネイティブでも外せる（<code>claudeMdExcludes</code>・deny）が、profile と settings の 2 か所に分けると「なぜ OFF か」を 2 か所で調べることになるので、同じ profile で扱う。</p>
+  </div>
+
+  <h2>3. skill を隠すと何が変わるか</h2>
+  <div class="col">
+    <p>skill 一覧には予算（context の 1%）があり、一覧は常にその上限まで使われる。超えた分は、一部の skill の説明が削られて名前だけになる。だから skill を外しても字数はほぼ減らず、空いた分で削られていた説明が戻る。効くのは量ではなく中身で、関係ない skill が消え、使う skill の説明が欠けずに載る。</p>
+  </div>
+  <figure>
+    <div class="fig">
+      <svg viewBox="0 0 940 250" role="img" aria-label="skill 一覧の字数を 2 本の帯で比べる。3 つの skill を外すと 821 字が空き、名前だけに削られていた herdr-delegate と config-gc の説明が 807 字戻る。全体は 26,551 字から 26,534 字でほぼ同じ。">
+        <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+        <g font-family="var(--font-body)" font-size="12" fill="currentColor">
+          <!-- scale: 800px = 26,551 chars (0.0301 px/char), bars start at x=110 -->
+          <text x="20" y="62" font-weight="700">外す前</text>
+          <text x="20" y="80" font-size="11" fill="var(--muted)">26,551 字</text>
+          <rect x="110" y="50" width="776" height="34" fill="var(--line)"/>
+          <rect x="886" y="50" width="18" height="34" fill="var(--drop)"/>
+          <rect x="904" y="50" width="6" height="34" fill="var(--drop)" fill-opacity=".7"/>
+          <rect x="910" y="50" width="1.5" height="34" fill="var(--drop)"/>
+          <text x="498" y="72" text-anchor="middle" font-size="11.5">ほかの 98 skill（説明が削られて名前だけのものを含む）</text>
+          <line x1="898" y1="46" x2="898" y2="26" stroke="var(--drop)"/>
+          <text x="898" y="20" text-anchor="end" font-size="11" fill="var(--drop)">外す 3 件 = 821 字（refactor-clean 584・tdd 208・review-pr 29）</text>
+
+          <text x="20" y="172" font-weight="700">外した後</text>
+          <text x="20" y="190" font-size="11" fill="var(--muted)">26,534 字</text>
+          <rect x="110" y="160" width="771" height="34" fill="var(--line)"/>
+          <rect x="881" y="160" width="15" height="34" fill="var(--keep)"/>
+          <rect x="896" y="160" width="13" height="34" fill="var(--keep)" fill-opacity=".7"/>
+          <text x="498" y="182" text-anchor="middle" font-size="11.5">同じ 98 skill</text>
+          <line x1="895" y1="198" x2="895" y2="222" stroke="var(--keep)"/>
+          <text x="895" y="238" text-anchor="end" font-size="11" fill="var(--keep)">戻った説明 = 807 字（herdr-delegate 16→505・config-gc 11→425、hookify:hookify 113→17）</text>
+
+          <line x1="898" y1="88" x2="898" y2="154" stroke="currentColor" stroke-dasharray="3 3" marker-end="url(#ah2)"/>
+          <text x="886" y="126" text-anchor="end" font-size="11" fill="var(--muted)">空いた予算が埋め戻される</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>図 2. 帯の長さは字数に比例（右端の色の部分も同じ尺度）。2026-10-03 の C0 と C2 の 1 組の観測。skill が予算内に収まる環境なら、外した分そのまま減るはず。</figcaption>
+  </figure>
+
+  <h2>4. profile の書き方</h2>
+  <div class="pair">
+    <div>
+      <h3>global に置く profile（中身はここだけ）</h3>
+<pre>{
+  "skills":       { "allow": ["writing-ecosystem",
+                              "prose-translation",
+                              "headline-craft"] },
+  "agents":       { "allow": ["Explore", "general-purpose"] },
+  "instructions": { "deny":  ["~/.claude/rules/common/testing.md"] },
+  "tools":        { "deny":  ["LSP", "mcp__claude_ai_Slack__*"] }
+}</pre>
+    </div>
+    <div>
+      <h3>repo に置く選択ファイル（名前だけ）</h3>
+<pre>{ "profile": "writing" }</pre>
+      <p>repo 側には中身を書けない。clone してきた repo が、あなたの安全側の rules を黙って外せないようにするため。選べるのは、自分で定義した profile と Mod 同梱の profile だけ。</p>
+    </div>
+  </div>
+
+  <h2>5. 守ること・できないこと</h2>
+  <div class="pair">
+    <div>
+      <h3>不変条件（テストで固定）</h3>
+      <ul>
+        <li>profile を選んでいない repo、壊れた profile、知らない形式は全部素通し</li>
+        <li>同じ入力と profile なら出力も同じ（prompt cache を壊さない）。残した項目はバイト単位で元のまま</li>
+        <li>repo 自身の skill・agent・指示ファイル、managed の指示、hook と他 plugin の出力には触れない</li>
+        <li>外部通信・プロセス起動・モデル呼び出しはしない。読むのは profile と選択ファイルだけ</li>
+        <li>確認コマンド <code>/prose-mod</code> は画面に出し、モデルには返さない（OFF の名前を教えないため）</li>
+      </ul>
+    </div>
+    <div>
+      <h3>既知の限界（README に書く）</h3>
+      <ul>
+        <li>見せるかどうかの制御で、強制ではない。モデルが SKILL.md を直接読めば読める</li>
+        <li><code>paths:</code> 付きの rule など、後から付く指示ファイルは外れない</li>
+        <li>OFF のツールはネイティブの deny のように完全には消えない（v0.2 で同期）</li>
+        <li>profile の変更は新しい会話か <code>/clear</code> から効く</li>
+        <li>built-in と同じ名前の user の agent（例: Explore）を OFF にすると、built-in にも戻らない</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>6. この先</h2>
+  <div class="col">
+    <ul>
+      <li><strong>v0.2</strong>: <code>/prose-mod sync</code> を打ったときだけ、OFF のツールを <code>.claude/settings.local.json</code> の <code>permissions.deny</code> に書く（差分を見せてから。Mod が書いた行には印を付ける）</li>
+      <li><strong>実装の前に確かめること</strong>: 指示ファイルを外すと本文からも消えるか / <code>session.usage</code> を hook の中で呼べるか / <code>/clear</code>・resume で読み直せるか / subagent にも効くか / built-in・synced の skill の載り方</li>
+      <li><strong>人が決めること</strong>: <code>verify.sh</code> の承認、名前（<code>prose-mod</code> は仮）、執筆 repo の profile の中身、公開</li>
+    </ul>
+  </div>
+
+  <p class="foot">plan: docs/plans/rfc-0001-r2-profile-allowlist.md · 計測: docs/measurements/2026-10-03-phase0.md · 名前 prose-mod は仮</p>
+</main>
