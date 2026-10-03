@@ -39,7 +39,7 @@ You need Claude Code 2.1.287 or later, where Mods are on by default. No other ac
    claude plugin install harness-scope@harness-scope
    ```
 
-   To try it from a clone instead, start Claude Code with `claude --plugin-dir <path to the clone>`.
+   To try it from a clone instead, start Claude Code with `claude --plugin-dir <path to the clone>/plugin`.
 
 2. Choose a profile. The bundled `writing` profile works as is. To write your own, see [Profiles](#profiles).
 

@@ -39,7 +39,7 @@ Mods が既定で有効になった Claude Code 2.1.287 以降が必要です。
    claude plugin install harness-scope@harness-scope
    ```
 
-   clone から試すときは `claude --plugin-dir <clone のパス>` で起動します。
+   clone から試すときは `claude --plugin-dir <clone のパス>/plugin` で起動します。
 
 2. プロファイルを決めます。同梱の `writing` はそのまま使えます。自分で書くときは [Profiles](#profiles) を見てください。
 

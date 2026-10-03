@@ -34,7 +34,7 @@ fi
 out=$("$BIOME" check --error-on-warnings . 2>&1) || { echo "$out"; fail=1; }
 
 # type check — declarations are written by Claude Code when it loads a mod (claude --plugin-dir <dir>)
-PLUGINS=(. tools/probe)  # the mod and the measurement probe
+PLUGINS=(plugin tools/probe)  # the mod (the folder users install) and the measurement probe
 for dir in "${PLUGINS[@]}"; do
   if [[ -f "$dir/.claude-plugin/types/claude-code/index.d.ts" ]]; then
     "$TSC" -p "$dir" || fail=1
@@ -53,7 +53,7 @@ if command -v claude >/dev/null 2>&1; then
     claude plugin validate --strict "$m" >/dev/null || { claude plugin validate --strict "$m"; fail=1; }
   done
 
-  test_out=$(claude plugin test . 2>&1)
+  test_out=$(claude plugin test plugin 2>&1)
   test_rc=$?
   if grep -q "hooks modules are turned off in this process" <<<"$test_out"; then
     sleeping+=("plugin test: the runner reports mods turned off (known 2.1.287 bug, fixed in 2.1.288)")
