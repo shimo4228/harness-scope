@@ -1,0 +1,9 @@
+{
+  "name": "prose-mod",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "typescript": "7.0.2"
+  }
+}

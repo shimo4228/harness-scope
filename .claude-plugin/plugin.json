@@ -1,0 +1,6 @@
+{
+  "name": "prose-mod",
+  "version": "0.0.1",
+  "description": "Turn global skills, rules, agents and tools on or off per repo with named profiles",
+  "author": { "name": "shimo4228" }
+}

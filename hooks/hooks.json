@@ -1,0 +1,1 @@
+{ "description": "prose-mod hooks module", "modules": ["./register.ts"] }
