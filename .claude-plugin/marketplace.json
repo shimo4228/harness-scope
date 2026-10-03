@@ -1,0 +1,12 @@
+{
+  "name": "prose-mod",
+  "description": "Per-repo profiles for your global Claude Code skills, agents, rules and tools",
+  "owner": { "name": "shimo4228" },
+  "plugins": [
+    {
+      "name": "prose-mod",
+      "source": "./",
+      "description": "Turn global skills, rules, agents and tools on or off per repo with named profiles"
+    }
+  ]
+}

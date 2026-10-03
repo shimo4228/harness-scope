@@ -19,9 +19,11 @@ tool: TypeScript ==7.0.2（`tsc -p .`。`tsconfig.json` は Claude Code が書�
 再調査トリガー: 12 ヶ月経過 / 7.x の programmatic API が安定し、型を使う lint を足せるようになった
 
 ## plugin validate
-tool: `claude plugin validate --strict .`（Claude Code 同梱）
+tool: `claude plugin validate --strict <manifest>`（Claude Code 同梱）
 選定日: 2026-10-03
 理由: manifest・hooks module・使う event と mods API の一覧を検査する公式の入口
+罠: `marketplace.json` のあるディレクトリを渡すと marketplace だけを検査し、hooks module を見なくなる（2026-10-03 実測）。
+  verify は `plugin.json` と `marketplace.json` を名指しで別々に検査する
 
 ## test
 tool: `claude plugin test .`（Claude Code 同梱。`*.test.ts`、`claude-code/testing` の kit）

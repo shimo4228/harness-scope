@@ -45,8 +45,12 @@ done
 
 # manifest + hooks module (events, mods API calls)
 if command -v claude >/dev/null 2>&1; then
-  for dir in "${PLUGINS[@]}"; do
-    claude plugin validate --strict "$dir" >/dev/null || { claude plugin validate --strict "$dir"; fail=1; }
+  # Name each manifest: given a directory that holds marketplace.json, validate checks only the marketplace.
+  manifests=()
+  for dir in "${PLUGINS[@]}"; do manifests+=("$dir/.claude-plugin/plugin.json"); done
+  [[ -f .claude-plugin/marketplace.json ]] && manifests+=(.claude-plugin/marketplace.json)
+  for m in "${manifests[@]}"; do
+    claude plugin validate --strict "$m" >/dev/null || { claude plugin validate --strict "$m"; fail=1; }
   done
 
   test_out=$(claude plugin test . 2>&1)
