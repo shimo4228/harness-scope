@@ -24,10 +24,11 @@
 | osaki42/awesome-claude-mods | 2026-10-03 | reported | 0 stars, issue form or PR, one-line entries |
 | whyashthakker/awesome-claude-code-mods | 2026-10-03 | skipped | own 50-mod catalogue, original implementations only, screenshot required |
 | arasovic/claude-code-mods | 2026-10-03 | skipped | personal mod collection, no submission route |
-| loqimean/awesome-claude-code-hooks | 2026-10-03 | reported | 4 stars, PR route, hooks-only focus, one-line entries, alphabetical, commit within 6 months |
+| loqimean/awesome-claude-code-hooks | 2026-10-03 | listed | PR #12 merged 2026-10-03, in Session Memory & Context Hooks |
 | hashgraph-online/awesome-ai-plugins | 2026-10-03 | listed | PR #586 merged 2026-10-03, entry in README |
 | hamzafer/claude-code-mods | 2026-10-03 | skipped | own mods repo with marketplace.json; third-party mods go into mods/ dir as code, not a link list |
 | xbim08/awesome-claude-code-plugins | 2026-10-03 | skipped | 10 stars, plugin collection of its own, no contribution guide |
 | Lucys924/awesome-claude-code | 2026-10-03 | skipped | 0 stars, copy of general list |
 | zhuyansen/awesome-claude-code-hooks | 2026-10-03 | skipped | 0 stars, hooks/subagents/statuslines collection, no evidence of submission route |
 | michielhdoteth/awesome-ai-agent-tools | 2026-10-03 | skipped | general AI agent component library, not Claude Code Mod curation |
+| ianwieds/awesome-claude-code | 2026-10-04 | skipped | 1 star, 3 commits, general list, contributing.md 404 |
