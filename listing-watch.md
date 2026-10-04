@@ -33,3 +33,6 @@
 | michielhdoteth/awesome-ai-agent-tools | 2026-10-03 | skipped | general AI agent component library, not Claude Code Mod curation |
 | ianwieds/awesome-claude-code | 2026-10-04 | skipped | 1 star, 3 commits, general list, contributing.md 404 |
 | DrishtantKaushal/AwesomeClaudeCodeMods | 2026-10-04 | skipped | 0 stars, 1 commit, LICENSE and README only, no visible submission route |
+| Justmalhar/awesome-claude-mods | 2026-10-04 | skipped | 1 star, own mods in mods/ dir with tests and marketplace config; code contributions, not a link list |
+| centminmod/claude-plugins | 2026-10-04 | skipped | personal plugin marketplace, no submission route |
+| lemomo-ai/lemo-mod | 2026-10-04 | skipped | single product repo, not a list |
