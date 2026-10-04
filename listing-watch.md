@@ -36,3 +36,5 @@
 | Justmalhar/awesome-claude-mods | 2026-10-04 | skipped | 1 star, own mods in mods/ dir with tests and marketplace config; code contributions, not a link list |
 | centminmod/claude-plugins | 2026-10-04 | skipped | personal plugin marketplace, no submission route |
 | lemomo-ai/lemo-mod | 2026-10-04 | skipped | single product repo, not a list |
+| Singh-AP/awesome-claude-mods | 2026-10-04 | reported | 0 stars, 7 commits, updated 2026-10-04; external mods listed via GitHub issue (template not viewable), must be a real mod, one-line value, no hidden telemetry, README states limits; PR route is for code mods with tests and registry.json |
+| wh000wh000/awesome-claude-mods | 2026-10-04 | reported | 0 stars, 11 commits, auto-rebuilt every 2h, evidence-graded index; submission via issue with repo URL and short description; harness-scope not mentioned |
