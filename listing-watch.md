@@ -32,3 +32,4 @@
 | zhuyansen/awesome-claude-code-hooks | 2026-10-03 | skipped | 0 stars, hooks/subagents/statuslines collection, no evidence of submission route |
 | michielhdoteth/awesome-ai-agent-tools | 2026-10-03 | skipped | general AI agent component library, not Claude Code Mod curation |
 | ianwieds/awesome-claude-code | 2026-10-04 | skipped | 1 star, 3 commits, general list, contributing.md 404 |
+| DrishtantKaushal/AwesomeClaudeCodeMods | 2026-10-04 | skipped | 0 stars, 1 commit, LICENSE and README only, no visible submission route |
