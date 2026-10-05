@@ -3,7 +3,7 @@
 | key (owner/repo or domain) | first seen (UTC date) | status | note |
 |---|---|---|---|
 | karanb192/awesome-claude-code-mods | 2026-10-03 | listed | harness-scope found in README 2026-10-03 |
-| lycfyi/awesome-claude-code-mods | 2026-10-03 | known | seeded; PR #3 open 2026-10-05, no reviews, no failing checks, not yet in README |
+| lycfyi/awesome-claude-code-mods | 2026-10-03 | known | seeded; PR #3 open 2026-10-05, no reviews, no failing checks visible, not yet in README |
 | hesreallyhim/awesome-claude-code | 2026-10-03 | known | seeded |
 | magiccreator-ai/awesome-claude-code-mods (ccmods.dev) | 2026-10-03 | known | seeded |
 | Chat2AnyLLM/awesome-claude-plugins | 2026-10-03 | known | seeded |
@@ -42,3 +42,5 @@
 | moddex.gg | 2026-10-05 | skipped | blocked by egress proxy, submission route unverifiable |
 | oliverquaye23/claude-hooks | 2026-10-05 | skipped | 1 star, own hooks, not a list |
 | wesammustafa/Claude-Code-Everything-You-Need-to-Know | 2026-10-05 | skipped | guide, not a directory |
+| Hula-Hoop-AI/supermods | 2026-10-05 | skipped | 0 stars, 8 commits, own marketplace; mods are scaffolded in-repo via create-mod skill, no link route |
+| jeremylongshore/tons-of-skills-marketplace | 2026-10-05 | skipped | skills marketplace of its own, not Mod curation |
