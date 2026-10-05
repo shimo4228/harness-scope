@@ -3,7 +3,7 @@
 | key (owner/repo or domain) | first seen (UTC date) | status | note |
 |---|---|---|---|
 | karanb192/awesome-claude-code-mods | 2026-10-03 | listed | harness-scope found in README 2026-10-03 |
-| lycfyi/awesome-claude-code-mods | 2026-10-03 | known | seeded |
+| lycfyi/awesome-claude-code-mods | 2026-10-03 | known | seeded; PR #3 open 2026-10-05, no reviews, no failing checks, not yet in README |
 | hesreallyhim/awesome-claude-code | 2026-10-03 | known | seeded |
 | magiccreator-ai/awesome-claude-code-mods (ccmods.dev) | 2026-10-03 | known | seeded |
 | Chat2AnyLLM/awesome-claude-plugins | 2026-10-03 | known | seeded |
@@ -38,3 +38,7 @@
 | lemomo-ai/lemo-mod | 2026-10-04 | skipped | single product repo, not a list |
 | Singh-AP/awesome-claude-mods | 2026-10-04 | reported | 0 stars, 7 commits, updated 2026-10-04; external mods listed via GitHub issue (template not viewable), must be a real mod, one-line value, no hidden telemetry, README states limits; PR route is for code mods with tests and registry.json |
 | wh000wh000/awesome-claude-mods | 2026-10-04 | reported | 0 stars, 11 commits, auto-rebuilt every 2h, evidence-graded index; submission via issue with repo URL and short description; harness-scope not mentioned |
+| saksham10arora-dotcom/awesome-claude-mods | 2026-10-05 | reported | 0 stars, 8 commits, updated 2026-10-05; PR with one-line entry, public licensed repo, passes `claude plugin validate`, validator output in PR, tags; CC0; harness-scope not listed |
+| moddex.gg | 2026-10-05 | skipped | blocked by egress proxy, submission route unverifiable |
+| oliverquaye23/claude-hooks | 2026-10-05 | skipped | 1 star, own hooks, not a list |
+| wesammustafa/Claude-Code-Everything-You-Need-to-Know | 2026-10-05 | skipped | guide, not a directory |
