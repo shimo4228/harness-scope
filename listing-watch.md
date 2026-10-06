@@ -3,7 +3,7 @@
 | key (owner/repo or domain) | first seen (UTC date) | status | note |
 |---|---|---|---|
 | karanb192/awesome-claude-code-mods | 2026-10-03 | listed | harness-scope found in README 2026-10-03 |
-| lycfyi/awesome-claude-code-mods | 2026-10-03 | known | seeded; PR #3 still open 2026-10-05 (checked again, 2nd run), no reviews, no failing checks, not yet in README |
+| lycfyi/awesome-claude-code-mods | 2026-10-03 | known | seeded; PR #3 still open 2026-10-06 (checked again, 4th run), no reviews, no failing checks, not yet in README |
 | hesreallyhim/awesome-claude-code | 2026-10-03 | known | seeded |
 | magiccreator-ai/awesome-claude-code-mods (ccmods.dev) | 2026-10-03 | known | seeded |
 | Chat2AnyLLM/awesome-claude-plugins | 2026-10-03 | known | seeded |
@@ -48,3 +48,4 @@
 | habibbedawi/claude-code-tips | 2026-10-05 | skipped | tips repo, not a directory |
 | fnfremixer/claude-code-tdd | 2026-10-05 | skipped | single project, not a list |
 | hamzafer-style individual mod repos (oioi555, abhibansal60, 3dnow, Szotasz, schmas etc.) | 2026-10-05 | skipped | own mods or marketplaces, not link lists |
+| testy-cool/awesome-claude-code-mods | 2026-10-06 | reported | 0 stars, 6 commits, updated 2026-10-06; PR adding entry to .claude-plugin/marketplace.json, own public licensed repo, passes `claude plugin validate .`; appearance-focused so far (themes, panes, portraits); CC0; weekly scan action; harness-scope not listed |
