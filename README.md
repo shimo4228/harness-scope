@@ -131,6 +131,7 @@ To work on the Mod: `npm ci`, then `.claude/verify.sh` (Biome, TypeScript, `clau
 
 - **Give Claude Code a Second Harness** ([Dev.to](https://dev.to/shimo4228/give-claude-code-a-second-harness-27of) / [Zenn, Japanese](https://zenn.dev/shimo4228/articles/claude-code-claudemd-excludes)): swapping the whole harness for experiments. `CLAUDE_CONFIG_DIR` moves skills and agents but leaves CLAUDE.md and rules behind; `claudeMdExcludes` covers the rest.
 - **[claude-harness](https://github.com/shimo4228/claude-harness)**: the personal harness (rules, skills, agents) that this Mod narrows in my writing repo.
+- **[akc-cycle](https://github.com/shimo4228/akc-cycle)**: the Agent Knowledge Cycle as one rules file plus a Claude Code plugin, another install target cut from the same harness.
 - **[shimo4228](https://github.com/shimo4228/shimo4228)**: my other projects and writing.
 
 ## License

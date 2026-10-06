@@ -131,6 +131,7 @@ Mod に手を入れるときは `npm ci` のあと `.claude/verify.sh`（Biome�
 
 - **Claude Codeに2つ目のハーネスを持たせる**（[Zenn](https://zenn.dev/shimo4228/articles/claude-code-claudemd-excludes) / [Dev.to、英語](https://dev.to/shimo4228/give-claude-code-a-second-harness-27of)）: 実験用にハーネスを丸ごと持ち替える方法です。`CLAUDE_CONFIG_DIR` で skill と agent は入れ替わりますが CLAUDE.md と rules は残り、残りは `claudeMdExcludes` で外せることが分かります。
 - **[claude-harness](https://github.com/shimo4228/claude-harness)**: この Mod が執筆 repo で絞っている、私自身のハーネス（rules・skill・agent）です。
+- **[akc-cycle](https://github.com/shimo4228/akc-cycle)**: Agent Knowledge Cycle を rules ファイル 1 枚と Claude Code プラグインで入れる repo です。同じハーネスから切り出した、もう一つの導入先です。
 - **[shimo4228](https://github.com/shimo4228/shimo4228)**: 私のほかのプロジェクトと文章の一覧です。
 
 ## License
