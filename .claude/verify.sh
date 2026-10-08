@@ -42,6 +42,8 @@ for dir in "${PLUGINS[@]}"; do
     sleeping+=("type check ($dir): .claude-plugin/types/ is missing — load it once with 'claude --plugin-dir $dir'")
   fi
 done
+# tests/ sits outside the shipped folder; tsconfig.json at the root resolves its ../hooks imports into plugin/hooks
+if [[ -f plugin/.claude-plugin/types/claude-code/index.d.ts ]]; then "$TSC" -p . || fail=1; fi
 
 # manifest + hooks module (events, mods API calls)
 if command -v claude >/dev/null 2>&1; then
@@ -53,8 +55,12 @@ if command -v claude >/dev/null 2>&1; then
     claude plugin validate --strict "$m" >/dev/null || { claude plugin validate --strict "$m"; fail=1; }
   done
 
-  test_out=$(claude plugin test plugin 2>&1)
+  # The runner takes tests from inside the plugin folder, and tests must not ship, so assemble both in a temp dir.
+  test_dir=$(mktemp -d) || exit 2
+  cp -R plugin/. "$test_dir/" && cp -R tests "$test_dir/tests"
+  test_out=$(claude plugin test "$test_dir" 2>&1)
   test_rc=$?
+  rm -rf "$test_dir"
   if grep -q "hooks modules are turned off in this process" <<<"$test_out"; then
     sleeping+=("plugin test: the runner reports mods turned off (known 2.1.287 bug, fixed in 2.1.288)")
   elif grep -q "no \*.test.ts or \*.test.tsx" <<<"$test_out"; then
