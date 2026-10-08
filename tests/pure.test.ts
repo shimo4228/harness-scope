@@ -201,6 +201,25 @@ describe('configDirFromPluginRoot', () => {
   test('a checkout loaded with --plugin-dir has no config dir', () => {
     expect(configDirFromPluginRoot('/u/me/src/harness-scope/plugin')).toBe(null)
   })
+  test('a Windows install path with backslashes yields a forward-slash config dir', () => {
+    expect(configDirFromPluginRoot('C:\\Users\\me\\.claude\\plugins\\cache\\harness-scope\\harness-scope\\0.1.3')).toBe(
+      'C:/Users/me/.claude',
+    )
+    expect(configDirFromPluginRoot('C:\\cfg\\plugins\\marketplaces\\harness-scope\\plugin')).toBe('C:/cfg')
+  })
+  test('a Windows checkout loaded with --plugin-dir has no config dir', () => {
+    expect(configDirFromPluginRoot('C:\\src\\harness-scope\\plugin')).toBe(null)
+  })
+  test('a UNC install path is read the same way', () => {
+    expect(
+      configDirFromPluginRoot('\\\\srv\\share\\.claude\\plugins\\cache\\harness-scope\\harness-scope\\0.1.3'),
+    ).toBe('//srv/share/.claude')
+  })
+  test('a backslash in a POSIX path is part of a name and stays', () => {
+    expect(configDirFromPluginRoot('/home/a\\b/.claude/plugins/cache/harness-scope/harness-scope/0.1.3')).toBe(
+      '/home/a\\b/.claude',
+    )
+  })
 })
 
 describe('expandTilde', () => {
