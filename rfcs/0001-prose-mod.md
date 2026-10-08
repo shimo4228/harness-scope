@@ -130,6 +130,9 @@ event ごとの動作・不変条件・テストは plan（下の Status）が�
 - 2026-10-03 — README（英語・日本語）と概要図を書き、LICENSE（MIT）を足し、version を 0.1.0 にした。Plan:
   [docs/plans/RFC-0001-s2-readme.md](../docs/plans/RFC-0001-s2-readme.md)
 - 2026-10-03 — GitHub に public で公開した（https://github.com/shimo4228/harness-scope）。About の description と topics を設定
+- 2026-10-08 — プロダクト品質の eval ループ（実機 eval・公式 `claude plugin eval`・単体）を作り、4 ラウンド回した。
+  別名つきの一覧行と説明内の `- name: text` の誤読を直し、status line・`/harness-scope names`・止め方の行を足した。2.1.294 で
+  確認。計測: [docs/measurements/2026-10-08-product-eval.md](../docs/measurements/2026-10-08-product-eval.md)
 
 ## Next action
 
