@@ -1,13 +1,13 @@
 # harness-scope
 
-The Claude Code Mod itself: the folder Claude Code installs. It turns your global skills, agents, instruction files (CLAUDE.md and rules) and tools on or off per repo, using named profiles you keep in `~/.claude/harness-scope/profiles/`. A repo picks one profile with a one-line `.claude/harness-scope.json`; the repo's own skills, agents and CLAUDE.md always stay.
+The Claude Code mod itself: the folder Claude Code installs. It turns your global skills, agents, instruction files (CLAUDE.md and rules) and tools on or off per repo, using named profiles you keep in `~/.claude/harness-scope/profiles/`. A repo picks one profile with a one-line `.claude/harness-scope.json`; the repo's own skills, agents and CLAUDE.md always stay.
 
 You decide what is hidden. Nothing changes in a repo until you put that file there, and the file can only name one of your profiles.
 
-- **Is it on?** In a repo that selects a profile, a status line under the prompt reads `harness-scope: profile "writing" on`, and one line on screen says which file selected it. If that line is missing in such a repo, the Mod did not load.
+- **Is it on?** In a repo that selects a profile, a status line under the prompt reads `⚠ harness-scope: profile "writing" on` (Claude Code draws the ⚠ in front of a mod's status line; it is not a warning), and one line on screen says which file selected it. If that line is missing in such a repo, the mod did not load.
 - **What did it turn off?** Run `/harness-scope`. It lists what is off and kept, and any profile pattern that matched nothing (a typo).
 - **What names can a profile use?** After one prompt, run `/harness-scope names`. It lists the skill, agent and tool names this conversation offered, in any repo.
-- **How do I undo it?** Delete `.claude/harness-scope.json` and run `/clear` (or start a new conversation). To remove the Mod itself: `claude plugin uninstall harness-scope`. The Mod writes no files, so there is nothing else to clean up.
+- **How do I undo it?** Delete `.claude/harness-scope.json` and run `/clear` (or start a new conversation). To remove the mod itself: `claude plugin uninstall harness-scope@harness-scope`. The mod writes no files, so there is nothing else to clean up.
 
 ## Examples
 
@@ -32,6 +32,6 @@ With no `.claude/harness-scope.json`, or with a profile it cannot read, every ho
 
 ## Data
 
-The Mod reads the profile files in `~/.claude/harness-scope/profiles/`, the repo's `.claude/harness-scope.json`, and Claude Code's session usage (only to tell the repo's own skills apart). It reads no environment variables: it finds `~/.claude` from where the plugin is installed, or from the optional `configDir` setting. It writes nothing, sends nothing over the network, starts no processes and calls no model.
+The mod reads the profile files in `~/.claude/harness-scope/profiles/`, the repo's `.claude/harness-scope.json`, and Claude Code's session usage (to tell the repo's own skills apart, to find where each skill entry in the listing starts, and for `/harness-scope names`). It reads no environment variables: it finds `~/.claude` from where the plugin is installed, or from the optional `configDir` setting. It writes nothing, sends nothing over the network, starts no processes and calls no model.
 
 Usage, the profile format, measurements and limitations are in the README of the shimo4228/harness-scope repository on GitHub.

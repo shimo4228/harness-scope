@@ -49,3 +49,22 @@ project の `.claude/settings.json` に次を置き、`claude -p "/context"` の
 - 改稿前の README は「組み込みと claude.ai 同期の skill は 1 つずつ選べない」と書いていたが、計測の裏付けが無く、2.1.294 では
   当てはまらない。README を直した
 - 同期 skill のキーは `pdf` と `anthropic-skills:pdf` の両方を置いたので、どちらが効いたかは切り分けていない
+
+## 追記（2026-10-09）: quality/product-eval 取り込み後の出力
+
+main（293086c 以降、plugin/ は quality/product-eval の 79ffbd6）の `plugin/` を `--plugin-dir` で読み込み、導入済みの 0.1.2 は
+`--settings` の `enabledPlugins` で外して、同じ 2 通のセッション（3 通目に `/harness-scope names`）で取り直した。README の
+Quick start の例はこの出力（名前の列は途中で切った）。
+
+```text
+harness-scope: profile "writing" (bundled), selected by .claude/harness-scope.json
+skills (allow): 91 off — …（91 件）
+agents (allow): 30 off — …（30 件）
+agents kept: Explore, general-purpose
+instructions: not in the profile
+tools (deny): 4 off — EnterWorktree, ExitWorktree, LSP, NotebookEdit
+To turn it off: delete .claude/harness-scope.json, then /clear. harness-scope writes no files.
+```
+
+- 91 件（前回 90 件）の差は `hookify:writing-rules`。別名つきの行の誤読が直り、外れるようになった
+- `claude plugin validate plugin` の `calls:` に `$.ui.status (via showStatus)` が加わった（status line）

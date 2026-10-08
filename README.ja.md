@@ -51,21 +51,24 @@ mods が既定で有効な Claude Code 2.1.287 以降が必要です。アカウ
 3. その repo で新しい会話を始めるか、`/clear` を打ちます。画面に次の 1 行が出れば、プロファイルが効いています。
 
    ```text
-   harness-scope: profile "writing" from bundled profile "writing", selected by /home/me/essays/.claude/harness-scope.json
+   harness-scope: profile "writing" (bundled) on, selected by .claude/harness-scope.json — /harness-scope for details
    ```
 
-   行が出ないとき、または行が `passing everything through`（全部をそのまま通す）と言っているときは、何も外れていません。読み込まれなかった mod は警告を出せないので、行が出ないこと自体が合図です。
+   効いている間は、入力欄の下の status line に `⚠ harness-scope: profile "writing" on` と出ます。⚠ は Claude Code が mod の status line に付けるもので、ここでは警告ではありません。status line が無いとき、または `passing everything through`（全部をそのまま通す）と出ているときは、何も外れていません。読み込まれなかった mod は警告を出せないので、status line が無いこと自体が合図です。
 
-最初のメッセージのあとに `/harness-scope` を打つと、プロファイルが外したものが出ます。Claude Code 2.1.294 の試験用 repo での出力です（上の行と同じ 1 行目を省き、名前の列は途中で切っています）。
+最初のメッセージのあとに `/harness-scope` を打つと、プロファイルが外したものが出ます。Claude Code 2.1.294 の試験用 repo での出力です（名前の列は途中で切っています）。
 
 ```text
-skills (allow): 90 off — adr-writer, archify, authorship-strategy, …
+harness-scope: profile "writing" (bundled), selected by .claude/harness-scope.json
+skills (allow): 91 off — adr-writer, archify, authorship-strategy, …
 agents (allow): 30 off — adr-reviewer, architect, claude, …
+agents kept: Explore, general-purpose
 instructions: not in the profile
 tools (deny): 4 off — EnterWorktree, ExitWorktree, LSP, NotebookEdit
+To turn it off: delete .claude/harness-scope.json, then /clear. harness-scope writes no files.
 ```
 
-プロファイルの中で何にも一致しなかったパターンも出ます。この一覧は画面に出るだけで、会話には入りません。画面の無い `claude -p` のときだけ、コマンドの出力として返ります。
+プロファイルの中で何にも一致しなかったパターンと、残した repo 自身の skill も出ます。この一覧は画面に出るだけで、会話には入りません。画面の無い `claude -p` のときだけ、コマンドの出力として返ります。
 
 1 つの repo で元に戻すには `.claude/harness-scope.json` を消します。すべてで止めるには `claude plugin uninstall harness-scope@harness-scope` を打ちます。mod はファイルを書かないので、ほかに片付けるものはありません。このファイルの無い repo は何も変わりません。
 
@@ -75,7 +78,7 @@ Claude Code は依頼のたびに、Claude に見せるもの（指示ファイ�
 
 ## プロファイル
 
-プロファイルは `~/.claude/harness-scope/profiles/<name>.json` に置く JSON ファイルです。カテゴリごとに `allow`（これだけ残す）か `deny`（これだけ外す）のどちらか 1 つを書きます。名前とパスには `*` と `?` の glob が使えます。書かなかったカテゴリはそのまま残ります。
+プロファイルは `~/.claude/harness-scope/profiles/<name>.json` に置く JSON ファイルです。カテゴリごとに `allow`（これだけ残す）か `deny`（これだけ外す）のどちらか 1 つを書きます。名前とパスには `*` と `?` の glob が使えます。書かなかったカテゴリはそのまま残ります。使える名前は、メッセージを 1 回送ったあとに `/harness-scope names` を打つと分かります。その会話で出た skill・agent・ツールの名前を、プロファイルで照合する形のまま一覧します。どの repo でも使えます。
 
 ```json
 {
@@ -137,18 +140,17 @@ harness-scope のプロファイルは skill・agent・指示ファイル・ツ�
 
 repo 側のファイルに書けるのはプロファイルの名前だけです。clone した repo が独自のプロファイルを定義して利用者の rules を外すことはできず、できるのは利用者のプロファイルから 1 つ選ぶことだけです。選んだときは画面の 1 行で分かります。
 
-mod は利用者にできることを何でもできるので、入れる前に何を頼むかを確かめてください。clone した repo の `plugin/` に `claude plugin validate` を打つと `calls:` の行が出ます。harness-scope の場合は、読み取り（`$.fs.exists`・`$.fs.read`・`$.session.*`）、画面の 1 行（`$.ui.log`）、`/harness-scope` コマンドの登録だけです。読むのは、プロファイル、repo 側のファイル、そして repo 自身の skill を見分けるために Claude Code から受け取る「読み込まれた skill とそれぞれの出どころ」の一覧です。環境変数は読まず、`~/.claude` の場所は mod のインストール先から割り出します。ファイルの書き込み、外部への通信、プロセスの起動、モデルの呼び出しはしません。
+mod は利用者にできることを何でもできるので、入れる前に何を頼むかを確かめてください。clone した repo の `plugin/` に `claude plugin validate` を打つと `calls:` の行が出ます。harness-scope の場合は、読み取り（`$.fs.exists`・`$.fs.read`・`$.session.*`）、画面の 1 行と status line（`$.ui.log`・`$.ui.status`）、`/harness-scope` コマンドの登録だけです。読むのは、プロファイル、repo 側のファイル、そして repo 自身の skill を見分けるために Claude Code から受け取る「読み込まれた skill とそれぞれの出どころ」の一覧です。環境変数は読まず、`~/.claude` の場所は mod のインストール先から割り出します。ファイルの書き込み、外部への通信、プロセスの起動、モデルの呼び出しはしません。
 
 ## 制限
 
 - 制御するのは Claude に見せるものまでで、読めるかどうかではありません。Claude が skill の SKILL.md を直接開けば読めます。
 - 会話の途中から付く指示ファイル（`paths:` 付きの rule、下位ディレクトリの CLAUDE.md）は外れません。
-- ここで OFF にしたツールは Claude の主なツール一覧から外れ、呼ばれると断られますが、Claude がツールを検索すれば（ToolSearch）名前は見つかります。完全に消すのはネイティブの `permissions.deny` です。プロファイルを `permissions.deny` へ同期するコマンドを v0.2 で予定しています。
+- ここで OFF にしたツールは Claude の主なツール一覧から外れ、呼ばれると断られますが、Claude がツールを検索すれば（ToolSearch）名前は見つかります。完全に消すのはネイティブの `permissions.deny` なので、必要なときはプロファイルの `tools.deny` をそこへ書き写してください。
 - プロファイルの変更は、新しい会話か `/clear` から効きます。
 - 自分の agent が組み込みと同じ名前（Explore など）だと、OFF にしたとき組み込みのほうも見えなくなります。
-- skill の説明の中に `- name: text` の形の行があると、別の skill と読まれることがあります。
 - 確認したのは Claude Code 2.1.287 と 2.1.294 です。2.1.294 では試験の 20 回中 20 回で読み込まれました（2026-10-08）。2.1.287 では 9 回中 1 回で読み込まれず、エラーも出ないまま、その回は何も外れませんでした。原因はまだ確かめていません。
-- 一覧の形式は Claude Code の版で変わりえます。skill の一覧が見覚えの無い形式なら、そのまま通すので、壊れたときは「何も外れない」という形で現れ、そのことを `/harness-scope` が伝えます。
+- 一覧の形式は Claude Code の版で変わりえます。skill の一覧が見覚えの無い形式のときや、skill の境目を決めきれないときは、一覧をそのまま通し、そのことを画面と status line で伝えます。
 
 ## 設計の資料
 
@@ -184,7 +186,7 @@ harness-scope は、グローバルの設定が大きい Claude Code 利用者�
 - 導入: `claude plugin install harness-scope --marketplace shimo4228/harness-scope`（または `claude plugin marketplace add shimo4228/harness-scope` のあと `claude plugin install harness-scope@harness-scope`）。
 - 選択ファイル: repo の `.claude/harness-scope.json`。中身は `{ "profile": "<name>" }` だけ。セッションの root、次に git の root で探す。
 - プロファイル: `~/.claude/harness-scope/profiles/<name>.json`。`skills`・`agents`・`instructions`・`tools` は任意で、それぞれ `{ "allow": [...] }` か `{ "deny": [...] }`、`*` / `?` の glob が使える。同梱のプロファイルは `writing`（repo 自身の skill だけ。agent は Explore と general-purpose。ツールは LSP・NotebookEdit・EnterWorktree・ExitWorktree を外す）。
-- hook: `prompt.context` が利用者自身の指示ファイルを外し、`prompt.attachment` が skill の一覧と deferred tool の一覧を絞り、`agent.offer` が agent の種類を出さず、`tool.describe` がツールを後ろへ回し、`tool.call` が OFF のツールと skill の呼び出しを断る。`/harness-scope` は外したものを報告する。
+- hook: `prompt.context` が利用者自身の指示ファイルを外し、`prompt.attachment` が skill の一覧と deferred tool の一覧を絞り、`agent.offer` が agent の種類を出さず、`tool.describe` がツールを後ろへ回し、`tool.call` が OFF のツールと skill の呼び出しを断る。`/harness-scope` は外したものを、`/harness-scope names` は出た名前を報告し、status line がプロファイルの ON を示す。
 - 常に残すもの: repo 自身の skill・agent・指示ファイル、managed と local のファイル、auto memory、hook やほかの plugin が足した文。選択ファイルが無いときや、プロファイルが読めないときは全部をそのまま通す。
 
 **例。** 2026-10-03 に Claude Code 2.1.287 で、作者の執筆 repo に `writing` を当てて測りました。skill の一覧は 101 件（26,551 字）から repo 自身の 7 件（1,623 字）に、agent の一覧は 38 種類（18,988 字）から 9 種類（4,134 字）になり、OFF の `tdd` を Skill で呼ぶと理由つきで断られました。
