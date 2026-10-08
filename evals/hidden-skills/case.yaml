@@ -1,0 +1,18 @@
+schema_version: "1.1"
+name: hidden-skills
+description: With the bundled writing profile, the model is not shown the global and built-in skills.
+tags: [effect]
+runs: 3
+execution:
+  model: haiku
+  max_turns: 2
+  prompt: |
+    List the name of every skill you can invoke with the Skill tool, one per line. Output only the names; if there are none, output NONE.
+context:
+  scaffold_script: scaffold.sh
+graders:
+  - name: no built-in skills listed
+    type: regex
+    pattern: "\\b(simplify|update-config|loop|claude-api|code-review)\\b"
+    flags: i
+    match: not_contains

@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: pass-through
+description: Without a selector the installed plugin changes nothing — the built-in skills stay visible.
+tags: [pass-through]
+runs: 3
+execution:
+  model: haiku
+  max_turns: 2
+  prompt: |
+    List the name of every skill you can invoke with the Skill tool, one per line. Output only the names; if there are none, output NONE.
+graders:
+  - name: built-in skills still listed
+    type: regex
+    pattern: "\\b(simplify|update-config|claude-api)\\b"
+    flags: i

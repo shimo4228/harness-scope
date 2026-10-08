@@ -2,3 +2,4 @@ node_modules/
 .notes/
 **/.claude-plugin/types/
 tools/probe/out/
+__pycache__/

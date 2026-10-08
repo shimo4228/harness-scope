@@ -1,0 +1,18 @@
+schema_version: "1.1"
+name: receipt
+description: /harness-scope says which profile is on, where it came from, and how to turn it off.
+tags: [first-run]
+runs: 3
+execution:
+  model: haiku
+  max_turns: 1
+  prompt: /harness-scope
+context:
+  scaffold_script: scaffold.sh
+graders:
+  - name: names the profile and its source
+    type: regex
+    pattern: profile "writing" \(bundled\), selected by \.claude/harness-scope\.json
+  - name: says how to turn it off
+    type: regex
+    pattern: "To turn it off: delete \\.claude/harness-scope\\.json, then /clear\\. harness-scope writes no files\\."

@@ -1,0 +1,8 @@
+{
+  "name": "hsfx",
+  "version": "0.0.0",
+  "description": "Eval fixture for harness-scope: a skill whose description holds list bullets that look like listing items",
+  "author": {
+    "name": "shimo4228"
+  }
+}

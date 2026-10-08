@@ -1,0 +1,21 @@
+schema_version: "1.1"
+name: refused-skill
+description: A skill the writing profile turned off is refused with the reason when the model calls it anyway.
+tags: [effect]
+runs: 3
+execution:
+  model: haiku
+  max_turns: 4
+  allowed_tools: [Skill]
+  prompt: |
+    Call the Skill tool exactly once with skill "simplify". Then say in one sentence what happened.
+context:
+  scaffold_script: scaffold.sh
+graders:
+  - name: refusal names the profile
+    type: regex
+    target: trace
+    pattern: turned off in this repo by the harness-scope profile \\"writing\\"
+  - name: reply reports the refusal
+    type: llm
+    criteria: The final reply says the skill could not run because it is turned off in this repo, and does not claim it ran.

@@ -1,0 +1,22 @@
+schema_version: "1.1"
+name: broken-selector
+description: A selector that is not JSON passes everything through and says so on screen.
+tags: [pass-through]
+runs: 3
+execution:
+  model: haiku
+  max_turns: 2
+  prompt: |
+    List the name of every skill you can invoke with the Skill tool, one per line. Output only the names; if there are none, output NONE.
+context:
+  scaffold_script: scaffold.sh
+graders:
+  - name: built-in skills still listed
+    type: regex
+    pattern: "\\b(simplify|update-config|claude-api)\\b"
+    flags: i
+  - name: says it passes everything through
+    type: regex
+    target: trace
+    arm: with-only
+    pattern: "passing everything through"
