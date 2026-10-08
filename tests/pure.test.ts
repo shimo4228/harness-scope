@@ -2,7 +2,7 @@
 // Fixtures mimic the 2.1.287 formats measured in docs/measurements/2026-10-03-phase0.md.
 import { describe, expect, test } from 'claude-code/testing'
 import { filterInstructionFiles } from '../hooks/instructions'
-import { filterDeferredTools, filterSkillListing } from '../hooks/listing'
+import { filterDeferredTools, filterSkillListing, type SkillItem } from '../hooks/listing'
 import { compileRule, configDirFromPluginRoot, expandTilde, parseProfile, parseSelector } from '../hooks/profile'
 
 const LISTING = [
@@ -66,14 +66,25 @@ describe('compileRule', () => {
 })
 
 describe('filterSkillListing', () => {
-  const keepWriting = (name: string) => name === 'writing-ecosystem' || name === 'claude-api'
+  // session.usage's names, in the listing's order (measured equal on 2.1.294).
+  const ORDER = [
+    'adr-writer',
+    'claude-api',
+    'growth-astra',
+    'hookify:configure',
+    'apps/web:deploy',
+    'writing-ecosystem',
+    'tdd',
+  ]
+  const H = 'The following skills are available for use with the Skill tool:'
+  const keepWriting = (i: SkillItem) => i.name === 'writing-ecosystem' || i.name === 'claude-api'
 
   test('removes whole items, including multi-line descriptions, and reports their names', () => {
-    const r = filterSkillListing(LISTING, keepWriting)
+    const r = filterSkillListing(LISTING, ORDER, keepWriting)
     expect(r).not.toBeNull()
     expect(r?.text).toBe(
       [
-        'The following skills are available for use with the Skill tool:',
+        H,
         '',
         '- claude-api: Reference for the Claude API.',
         'TRIGGER — read BEFORE opening the target file.',
@@ -84,41 +95,64 @@ describe('filterSkillListing', () => {
     expect(r?.removed).toEqual(['adr-writer', 'growth-astra', 'hookify:configure', 'apps/web:deploy', 'tdd'])
   })
   test('names keep their namespace: split at the first ": ", not the first ":"', () => {
-    const seen: string[] = []
-    filterSkillListing(LISTING, (n) => {
-      seen.push(n)
-      return true
-    })
-    expect(seen).toEqual([
-      'adr-writer',
-      'claude-api',
-      'growth-astra',
-      'hookify:configure',
-      'apps/web:deploy',
-      'writing-ecosystem',
-      'tdd',
-    ])
+    expect(filterSkillListing(LISTING, ORDER, () => true)?.items.map((i) => i.name)).toEqual(ORDER)
   })
   test('keeping everything returns the input byte for byte, and filtering twice changes nothing', () => {
-    expect(filterSkillListing(LISTING, () => true)?.text).toBe(LISTING)
-    const once = filterSkillListing(LISTING, keepWriting)?.text ?? ''
-    expect(filterSkillListing(once, keepWriting)?.text).toBe(once)
+    expect(filterSkillListing(LISTING, ORDER, () => true)?.text).toBe(LISTING)
+    const once = filterSkillListing(LISTING, ORDER, keepWriting)?.text ?? ''
+    expect(filterSkillListing(once, ORDER, keepWriting)?.text).toBe(once)
   })
-  test('a bullet inside a description stays with its skill', () => {
+  test('an aliased line "- name (alias): text" is one item, matched by either name', () => {
     const text = [
-      'The following skills are available for use with the Skill tool:',
+      H,
       '',
-      '- writing-ecosystem: Draft articles.',
-      '- Use when drafting an essay',
-      '- tdd: RED GREEN REFACTOR.',
+      '- hookify:list',
+      '- hookify:writing-rules (hookify:writing-hookify-rules): Write rules.',
     ].join('\n')
-    const r = filterSkillListing(text, (n) => n === 'writing-ecosystem')
-    expect(r?.removed).toEqual(['tdd'])
-    expect(r?.text).toContain('- Use when drafting an essay')
+    const order = ['hookify:list', 'hookify:writing-hookify-rules']
+    const r = filterSkillListing(text, order, (i) => i.name !== 'hookify:list')
+    expect(r?.text).toBe([H, '', '- hookify:writing-rules (hookify:writing-hookify-rules): Write rules.'].join('\n'))
+    expect(r?.items[1]).toEqual({
+      name: 'hookify:writing-rules',
+      alias: 'hookify:writing-hookify-rules',
+      key: 'hookify:writing-hookify-rules',
+    })
+  })
+  test('a synced skill is listed under its plugin prefix', () => {
+    const text = [H, '', '- anthropic-skills:docx: Word files.', '- tdd: Tests.'].join('\n')
+    const r = filterSkillListing(text, ['docx', 'tdd'], (i) => i.key === 'tdd')
+    expect(r?.removed).toEqual(['anthropic-skills:docx'])
+  })
+  test('bullets inside a description stay with their skill, even when one names a real skill', () => {
+    const text = [
+      H,
+      '',
+      '- helper: Help.',
+      '- router: Route a request.',
+      '- helper: when the request needs the helper',
+      '- note: keep it short',
+      '- tdd: Tests.',
+    ].join('\n')
+    const order = ['helper', 'router', 'tdd']
+    const r = filterSkillListing(text, order, (i) => i.name !== 'helper')
+    expect(r?.text).toBe(text.replace('\n- helper: Help.', ''))
+    expect(r?.removed).toEqual(['helper'])
+    expect(r?.items.map((i) => i.name)).toEqual(order)
+  })
+  test('when either line could be the item, the listing is not parsed (null)', () => {
+    // "helper" comes after router in the order, so its bullet inside router's description and its own line both fit.
+    const text = [H, '', '- router: Route.', '- helper: when needed', '- helper: Help.'].join('\n')
+    expect(filterSkillListing(text, ['router', 'helper'], () => false)).toBeNull()
+  })
+  test('a skill the listing left out (budget) is skipped; an order the listing breaks is not parsed', () => {
+    const text = [H, '', '- a: A.', '- c: C.'].join('\n')
+    expect(filterSkillListing(text, ['a', 'b', 'c'], () => true)?.text).toBe(text)
+    expect(filterSkillListing(text, ['c', 'a'], () => true)).toBeNull()
   })
   test('an unexpected format is not parsed (null), so the caller passes it through', () => {
-    expect(filterSkillListing('Something else entirely\n- a: b', () => false)).toBeNull()
-    expect(filterSkillListing('', () => false)).toBeNull()
+    expect(filterSkillListing('Something else entirely\n- a: b', ['a'], () => false)).toBeNull()
+    expect(filterSkillListing('', [], () => false)).toBeNull()
+    expect(filterSkillListing(`${H}\n\n- unknown: x`, ['a'], () => false)).toBeNull()
   })
 })
 
