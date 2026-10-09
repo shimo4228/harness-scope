@@ -1,0 +1,56 @@
+# Runs the repo gate (.claude/verify.sh) on Linux, Windows and macOS.
+# The gate exits 2 when a check could not run, so a check that sleeps here fails the job instead of passing silently.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash # Git Bash on Windows; verify.sh is a bash script
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # Pinned so a Claude Code release cannot change the result of an unchanged commit. Mods need 2.1.287 or later.
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code@2.1.295
+
+      # Claude Code writes .claude-plugin/types/ when it loads a mod, before it checks the sign-in.
+      # Without a sign-in the prompt itself fails, so the exit status is ignored; verify.sh reports missing types.
+      - name: Write the mods type declarations
+        env:
+          CLAUDE_CODE_PLUGIN_DIR_WATCH: '1'
+        run: |
+          for dir in plugin tools/probe; do
+            claude -p /harness-scope --plugin-dir "$dir" > /dev/null 2>&1 || true
+          done
+
+      - name: Verify
+        run: bash .claude/verify.sh
