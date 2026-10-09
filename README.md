@@ -5,7 +5,7 @@
 Claude Code showed my writing repo 101 skills. 94 didn't belong. This mod hides them with one line.
 
 ![Claude Code mod 2.1.287+](https://img.shields.io/badge/Claude%20Code%20mod-2.1.287%2B-D97757)
-![version 0.1.3](https://img.shields.io/badge/version-0.1.3-blue)
+![version 0.1.4](https://img.shields.io/badge/version-0.1.4-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 **[Quick start](#quick-start)** · [How it works](#how-it-works) · [Profiles](#profiles) · [Limitations](#limitations)
@@ -180,7 +180,7 @@ harness-scope is a Claude Code mod (a plugin with a hooks module, the extension 
 
 **Facts.**
 
-- Name: harness-scope. Version 0.1.3. License MIT. Author: shimo4228.
+- Name: harness-scope. Version 0.1.4. License MIT. Author: shimo4228.
 - Form: a Claude Code mod (a plugin's hooks module) written in TypeScript, in `plugin/hooks/` (`register.ts`, `profile.ts`, `listing.ts`, `instructions.ts`, `bundled.ts`).
 - Requires Claude Code 2.1.287 or later. Checked on 2.1.287 and 2.1.294. No account, API key, network access, child processes or model calls.
 - Install: `claude plugin install harness-scope --marketplace shimo4228/harness-scope` (or `claude plugin marketplace add shimo4228/harness-scope`, then `claude plugin install harness-scope@harness-scope`).

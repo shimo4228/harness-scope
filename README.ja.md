@@ -5,7 +5,7 @@
 Claude Code は私の執筆 repo に skill を 101 件見せていた。94 件は要らなかった。この mod なら 1 行で隠せる。
 
 ![Claude Code mod 2.1.287+](https://img.shields.io/badge/Claude%20Code%20mod-2.1.287%2B-D97757)
-![version 0.1.3](https://img.shields.io/badge/version-0.1.3-blue)
+![version 0.1.4](https://img.shields.io/badge/version-0.1.4-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 **[はじめかた](#はじめかた)** · [しくみ](#しくみ) · [プロファイル](#プロファイル) · [制限](#制限)
@@ -180,7 +180,7 @@ harness-scope は、グローバルの設定が大きい Claude Code 利用者�
 
 **事実。**
 
-- 名前: harness-scope。version 0.1.3。ライセンス MIT。作者: shimo4228。
+- 名前: harness-scope。version 0.1.4。ライセンス MIT。作者: shimo4228。
 - 形: TypeScript で書いた Claude Code の mod（plugin の hooks module）。`plugin/hooks/`（`register.ts`・`profile.ts`・`listing.ts`・`instructions.ts`・`bundled.ts`）。
 - Claude Code 2.1.287 以降が必要。2.1.287 と 2.1.294 で確認。アカウント、API キー、外部への通信、子プロセス、モデルの呼び出しは使わない。
 - 導入: `claude plugin install harness-scope --marketplace shimo4228/harness-scope`（または `claude plugin marketplace add shimo4228/harness-scope` のあと `claude plugin install harness-scope@harness-scope`）。
