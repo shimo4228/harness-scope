@@ -3,7 +3,14 @@
 import { describe, expect, test } from 'claude-code/testing'
 import { filterInstructionFiles } from '../hooks/instructions'
 import { filterDeferredTools, filterSkillListing, type SkillItem } from '../hooks/listing'
-import { compileRule, configDirFromPluginRoot, expandTilde, parseProfile, parseSelector } from '../hooks/profile'
+import {
+  compileRule,
+  configDirFromPluginRoot,
+  expandTilde,
+  parseProfile,
+  parseSelector,
+  toForwardSlashes,
+} from '../hooks/profile'
 
 const LISTING = [
   'The following skills are available for use with the Skill tool:',
@@ -222,6 +229,20 @@ describe('filterInstructionFiles', () => {
   })
   test('keeping everything returns the same list', () => {
     expect(filterInstructionFiles(files, () => true).files).toEqual(files)
+  })
+})
+
+describe('toForwardSlashes', () => {
+  test('a drive-letter or UNC path is read with forward slashes', () => {
+    expect(toForwardSlashes('C:\\Users\\me\\.claude\\')).toBe('C:/Users/me/.claude/')
+    expect(toForwardSlashes('\\\\srv\\share\\.claude')).toBe('//srv/share/.claude')
+    expect(toForwardSlashes('C:/Users/me\\.claude')).toBe('C:/Users/me/.claude')
+    expect(toForwardSlashes('c:\\Users\\me')).toBe('C:/Users/me')
+  })
+  test('a POSIX path, a relative pattern and ~/ stay as they are', () => {
+    expect(toForwardSlashes('/home/a\\b/.claude')).toBe('/home/a\\b/.claude')
+    expect(toForwardSlashes('~/.claude/rules/*')).toBe('~/.claude/rules/*')
+    expect(toForwardSlashes('docs\\x.md')).toBe('docs\\x.md')
   })
 })
 

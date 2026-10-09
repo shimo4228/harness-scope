@@ -5,7 +5,7 @@
 Claude Code は私の執筆 repo に skill を 101 件見せていた。94 件は要らなかった。この mod なら 1 行で隠せる。
 
 ![Claude Code mod 2.1.287+](https://img.shields.io/badge/Claude%20Code%20mod-2.1.287%2B-D97757)
-![version 0.1.4](https://img.shields.io/badge/version-0.1.4-blue)
+![version 0.1.5](https://img.shields.io/badge/version-0.1.5-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 **[はじめかた](#はじめかた)** · [しくみ](#しくみ) · [プロファイル](#プロファイル) · [制限](#制限)
@@ -90,7 +90,7 @@ Claude Code は依頼のたびに、Claude に見せるもの（指示ファイ�
 ```
 
 - `skills` と `agents` は、Claude の一覧に載っている名前で照合します。自分のもの、plugin のもの（`plugin:skill`）、組み込み、claude.ai から同期されたもの、どれでも同じです。
-- `instructions` は自分の指示ファイルのパスで照合し、`~/` が使えます。`@` で取り込まれたファイルは、取り込んだ側と一緒に外れます。
+- `instructions` は自分の指示ファイルのパスで照合し、`~/` が使えます。パスは `/` で書きます。Windows では Claude Code が `\` で渡すファイルにもそのまま一致します。`@` で取り込まれたファイルは、取り込んだ側と一緒に外れます。
 - `tools` はツール名で照合します。MCP のツールも含みます。
 
 書き始めの例です。
@@ -180,7 +180,7 @@ harness-scope は、グローバルの設定が大きい Claude Code 利用者�
 
 **事実。**
 
-- 名前: harness-scope。version 0.1.4。ライセンス MIT。作者: shimo4228。
+- 名前: harness-scope。version 0.1.5。ライセンス MIT。作者: shimo4228。
 - 形: TypeScript で書いた Claude Code の mod（plugin の hooks module）。`plugin/hooks/`（`register.ts`・`profile.ts`・`listing.ts`・`instructions.ts`・`bundled.ts`）。
 - Claude Code 2.1.287 以降が必要。2.1.287 と 2.1.294 で確認。アカウント、API キー、外部への通信、子プロセス、モデルの呼び出しは使わない。
 - 導入: `claude plugin install harness-scope --marketplace shimo4228/harness-scope`（または `claude plugin marketplace add shimo4228/harness-scope` のあと `claude plugin install harness-scope@harness-scope`）。

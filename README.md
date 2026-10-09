@@ -5,7 +5,7 @@
 Claude Code showed my writing repo 101 skills. 94 didn't belong. This mod hides them with one line.
 
 ![Claude Code mod 2.1.287+](https://img.shields.io/badge/Claude%20Code%20mod-2.1.287%2B-D97757)
-![version 0.1.4](https://img.shields.io/badge/version-0.1.4-blue)
+![version 0.1.5](https://img.shields.io/badge/version-0.1.5-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 **[Quick start](#quick-start)** · [How it works](#how-it-works) · [Profiles](#profiles) · [Limitations](#limitations)
@@ -90,7 +90,7 @@ A profile is a JSON file at `~/.claude/harness-scope/profiles/<name>.json`. Each
 ```
 
 - `skills` and `agents` match names as they appear in Claude's listings, whatever their source: your own, a plugin's (`plugin:skill`), built-in, or synced from claude.ai.
-- `instructions` matches paths of your own instruction files, and `~/` works. A file pulled in with `@` goes with the file that imported it.
+- `instructions` matches paths of your own instruction files, and `~/` works. Write paths with `/`; on Windows they also match files Claude Code lists with `\`. A file pulled in with `@` goes with the file that imported it.
 - `tools` matches tool names, MCP tools included.
 
 Three starting points:
@@ -180,7 +180,7 @@ harness-scope is a Claude Code mod (a plugin with a hooks module, the extension 
 
 **Facts.**
 
-- Name: harness-scope. Version 0.1.4. License MIT. Author: shimo4228.
+- Name: harness-scope. Version 0.1.5. License MIT. Author: shimo4228.
 - Form: a Claude Code mod (a plugin's hooks module) written in TypeScript, in `plugin/hooks/` (`register.ts`, `profile.ts`, `listing.ts`, `instructions.ts`, `bundled.ts`).
 - Requires Claude Code 2.1.287 or later. Checked on 2.1.287 and 2.1.294. No account, API key, network access, child processes or model calls.
 - Install: `claude plugin install harness-scope --marketplace shimo4228/harness-scope` (or `claude plugin marketplace add shimo4228/harness-scope`, then `claude plugin install harness-scope@harness-scope`).
