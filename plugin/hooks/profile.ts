@@ -91,17 +91,26 @@ export function unmatchedPatterns(rule: Rule | undefined, seen: Iterable<string>
   return rule.patterns.filter((p) => !names.some((n) => globToRegExp(p).test(n)))
 }
 
+/**
+ * A Windows path (a drive letter or a UNC path) read with forward slashes and an upper-case drive letter, so a typed
+ * `c:\\...` compares equal to Claude Code's `C:\\...`; any other path as it is.
+ * Every path the mod builds, compares or shows uses `/`. On POSIX a backslash is part of a name and stays.
+ */
+export function toForwardSlashes(path: string): string {
+  if (!/^(?:[A-Za-z]:|\\\\)/.test(path)) return path
+  return path.replace(/\\/g, '/').replace(/^[a-z]:/, (drive) => drive.toUpperCase())
+}
+
 const INSTALL_ANCHORS = ['/plugins/cache/', '/plugins/marketplaces/'] as const
 
 /**
  * Claude Code's configuration directory (`~/.claude` by default), read off where the plugin is installed:
  * an installed copy sits under `<config dir>/plugins/`. null for a checkout loaded with --plugin-dir.
  * The mod reads no environment variable, so this is how it finds the user's profiles.
- * On Windows (a drive letter or a UNC path) the root arrives with backslashes; it is read with forward slashes,
- * and so is the result. On POSIX a backslash is part of a name and stays.
+ * A Windows root arrives with backslashes; the result has forward slashes (toForwardSlashes).
  */
 export function configDirFromPluginRoot(pluginRoot: string): string | null {
-  const root = /^(?:[A-Za-z]:|\\\\)/.test(pluginRoot) ? pluginRoot.replace(/\\/g, '/') : pluginRoot
+  const root = toForwardSlashes(pluginRoot)
   for (const anchor of INSTALL_ANCHORS) {
     const at = root.lastIndexOf(anchor)
     if (at > 0) return root.slice(0, at)

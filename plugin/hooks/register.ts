@@ -14,6 +14,7 @@ import {
   parseProfile,
   parseSelector,
   type Rule,
+  toForwardSlashes,
   unmatchedPatterns,
 } from './profile'
 
@@ -84,9 +85,16 @@ let statusShown = false
 let configuredDir = ''
 let configDir = ''
 
+// Instruction-file patterns and paths are both compared with forward slashes, so a Windows path matches `~/...`.
 function expandHome(rule: Rule | undefined): Rule | undefined {
   if (rule === undefined) return undefined
-  return { ...rule, patterns: rule.patterns.map((p) => (configDir === '' ? p : expandTilde(p, configDir))) }
+  const expand = (p: string) => toForwardSlashes(configDir === '' ? p : expandTilde(p, configDir))
+  return { ...rule, patterns: rule.patterns.map(expand) }
+}
+
+function compilePathRule(rule: Rule | undefined): (path: string) => boolean {
+  const keep = compileRule(expandHome(rule))
+  return (path) => keep(toForwardSlashes(path))
 }
 
 function activate(name: string, from: string, selector: string, profile: Profile): Active {
@@ -98,7 +106,7 @@ function activate(name: string, from: string, selector: string, profile: Profile
     profile,
     keepSkill: compileRule(profile.skills),
     keepAgent: compileRule(profile.agents),
-    keepFile: compileRule(expandHome(profile.instructions)),
+    keepFile: compilePathRule(profile.instructions),
     keepTool: compileRule(profile.tools),
   }
 }
@@ -313,7 +321,7 @@ function remember(type: string, agentId: string | undefined, text: string): void
 
 export function register(on: On, options: PluginOptions): void {
   const configured = options.configDir
-  configuredDir = typeof configured === 'string' ? configured.replace(/\/+$/, '') : ''
+  configuredDir = typeof configured === 'string' ? toForwardSlashes(configured).replace(/\/+$/, '') : ''
   on('classic.SessionStart', async (_$, e, next) => {
     if (e.source === 'clear' || e.source === 'resume') {
       loading = undefined
@@ -355,10 +363,10 @@ export function register(on: On, options: PluginOptions): void {
       note($, loaded, 'instruction files were rewritten upstream, so none were turned off')
       return r
     }
-    for (const f of r.instructionFiles) if (f.kind === 'user') receipt.seenFiles.add(f.path)
+    for (const f of r.instructionFiles) if (f.kind === 'user') receipt.seenFiles.add(toForwardSlashes(f.path))
     const out = filterInstructionFiles(r.instructionFiles, loaded.keepFile)
     if (out.removed.length === 0) return r
-    for (const p of out.removed) receipt.files.add(p)
+    for (const p of out.removed) receipt.files.add(toForwardSlashes(p))
     return { ...r, instructionFiles: out.files }
   })
 

@@ -39,8 +39,11 @@ const ORDER = ['adr-writer', 'writing-ecosystem', 'tdd', 'hookify:configure']
 /** The world beneath the mod. Unanswered calls throw, so a test fails if the mod reads what it should not. */
 type WorldOpts = { surfaces?: readonly ('terminal' | 'desktop')[]; order?: readonly string[]; status?: string[] }
 
-/** The kit hands a stub an absolute path for the host OS (`D:\r\...` on Windows); `disk` is keyed by POSIX paths. */
-const diskKey = (path: string) => path.replace(/\\/g, '/').replace(/^[A-Za-z]:/, '')
+/**
+ * The kit hands a stub an absolute path for the host OS (`D:\r\...` on Windows), and resolves a Windows path such
+ * as `C:/h/...` under the working directory elsewhere; `disk` is keyed by POSIX paths, so cut through the drive.
+ */
+const diskKey = (path: string) => path.replace(/\\/g, '/').replace(/^.*[A-Za-z]:(?=\/)/, '')
 
 function world(on: On, disk: Record<string, string>, opts: WorldOpts = {}) {
   const logs: string[] = []
@@ -304,6 +307,26 @@ describe('receipt and edges', () => {
 })
 
 describe('configuration directory', () => {
+  test(
+    'on Windows, a backslash configDir finds the profile and ~/ patterns match backslash file paths',
+    {
+      options: { configDir: 'C:\\h\\.claude\\' },
+    },
+    async ($, on) => {
+      world(on, { [SELECTOR]: '{"profile":"writing"}', [OWN_PROFILE]: WRITING }, { surfaces: [] })
+      const files = [
+        { path: 'C:\\h\\.claude\\CLAUDE.md', kind: 'user', content: 'harness' },
+        { path: 'C:\\h\\.claude\\rules\\common\\testing.md', kind: 'user', content: 'coverage 80%' },
+        { path: 'C:\\r\\CLAUDE.md', kind: 'project', content: 'repo' },
+      ] as const
+      const ctx = await $.prompt.context({ blocks: [], instructionFiles: files })
+      expect(ctx.instructionFiles?.map((f) => f.path)).toEqual(['C:\\h\\.claude\\CLAUDE.md', 'C:\\r\\CLAUDE.md'])
+      const text = (await $.command.run(RUN_PROSE_MOD)).text ?? ''
+      expect(text).toContain('profile "writing" from ~/.claude/harness-scope/profiles/writing.json')
+      expect(text).toContain('instructions (deny): 1 off — ~/.claude/rules/common/testing.md')
+    },
+  )
+
   test('with no configDir and a checkout install, only bundled profiles load and no env is read', async ($, on) => {
     world(on, {
       [SELECTOR]: JSON.stringify({ profile: 'writing' }),
