@@ -39,13 +39,16 @@ const ORDER = ['adr-writer', 'writing-ecosystem', 'tdd', 'hookify:configure']
 /** The world beneath the mod. Unanswered calls throw, so a test fails if the mod reads what it should not. */
 type WorldOpts = { surfaces?: readonly ('terminal' | 'desktop')[]; order?: readonly string[]; status?: string[] }
 
+/** The kit hands a stub an absolute path for the host OS (`D:\r\...` on Windows); `disk` is keyed by POSIX paths. */
+const diskKey = (path: string) => path.replace(/\\/g, '/').replace(/^[A-Za-z]:/, '')
+
 function world(on: On, disk: Record<string, string>, opts: WorldOpts = {}) {
   const logs: string[] = []
   on('session.root', () => ({ value: ROOT }))
   on('session.repo', () => ({ value: null }))
-  on('fs.exists', (_$, e) => ({ value: e.path in disk }))
+  on('fs.exists', (_$, e) => ({ value: diskKey(e.path) in disk }))
   on('fs.read', (_$, e) => {
-    const text = disk[e.path]
+    const text = disk[diskKey(e.path)]
     return text === undefined ? { deny: `no file ${e.path}` } : { value: text }
   })
   on('session.usage', () => ({ value: usage(opts.order ?? ORDER, ['writing-ecosystem']) }))
