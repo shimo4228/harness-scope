@@ -4,6 +4,14 @@ The Claude Code mod itself: the folder Claude Code installs. It turns your globa
 
 You decide what is hidden. Nothing changes in a repo until you put that file there, and the file can only name one of your profiles.
 
+Install it once (Claude Code 2.1.287 or later, where mods are on by default), in a session:
+
+```
+/plugin install harness-scope --marketplace shimo4228/harness-scope
+```
+
+or from a shell: `claude plugin install harness-scope --marketplace shimo4228/harness-scope`.
+
 - **Is it on?** In a repo that selects a profile, a status line under the prompt reads `⚠ harness-scope: profile "writing" on` (Claude Code draws the ⚠ in front of a mod's status line; it is not a warning), and one line on screen says which file selected it. If that line is missing in such a repo, the mod did not load.
 - **What did it turn off?** Run `/harness-scope`. It lists what is off and kept, and any profile pattern that matched nothing (a typo).
 - **What names can a profile use?** After one prompt, run `/harness-scope names`. It lists the skill, agent and tool names this conversation offered, in any repo.
@@ -32,6 +40,6 @@ With no `.claude/harness-scope.json`, or with a profile it cannot read, every ho
 
 ## Data
 
-The mod reads the profile files in `~/.claude/harness-scope/profiles/`, the repo's `.claude/harness-scope.json`, and Claude Code's session usage (to tell the repo's own skills apart, to find where each skill entry in the listing starts, and for `/harness-scope names`). It reads no environment variables: it finds `~/.claude` from where the plugin is installed, or from the optional `configDir` setting. It writes nothing, sends nothing over the network, starts no processes and calls no model.
+The mod reads the profile files in `~/.claude/harness-scope/profiles/`, the repo's `.claude/harness-scope.json`, and Claude Code's session usage (to tell the repo's own skills apart, to find where each skill entry in the listing starts, and for `/harness-scope names`). It also asks Claude Code for the session's root directory and git repo root (to find the repo file) and whether a screen is attached (to show `/harness-scope` output there instead of sending it to the model). It reads no environment variables: it finds `~/.claude` from where the plugin is installed, or from the optional `configDir` setting. It writes nothing, sends nothing over the network, starts no processes and calls no model.
 
 Usage, the profile format, measurements and limitations are in the README of the shimo4228/harness-scope repository on GitHub.
