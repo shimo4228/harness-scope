@@ -1,14 +1,11 @@
 {
   "name": "harness-scope",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Turn global skills, rules, agents and tools on or off per repo with named profiles. Add a one-line .claude/harness-scope.json to a repo; /harness-scope shows what is off",
   "icon": "./.claude-plugin/icon.png",
   "author": {
-    "name": "shimo4228",
-    "url": "https://github.com/shimo4228"
+    "name": "shimo4228"
   },
-  "documentationUrl": "https://github.com/shimo4228/harness-scope#readme",
-  "supportUrl": "https://github.com/shimo4228/harness-scope/issues",
   "keywords": ["claude-code", "mod", "hooks", "profiles", "skills", "context"],
   "license": "MIT",
   "userConfig": {
